@@ -36,7 +36,7 @@ public class LineChatConfig {
     private static final int DEFAULT_COORDINATE_TEXT_COLOR = DEFAULT_COORDINATE_LINE_COLOR;
 
     private static final int DEFAULT_Y_COORDINATE_ACCURACY_LEVEL = 6;//Y坐标精度：6个
-    private static final float DEFAULT_Y_COORDINATE_ACCURACY_FLOAT = 10.0f;//y坐标10%浮动
+    private static final float DEFAULT_Y_COORDINATE_ACCURACY_FLOAT = 0.1f;//y坐标10%浮动
     private static final float DEFAULT_ELEMENT_PADDING = 10;//元素之间的默认padding
 
     private static final long DEFAULT_ANIMATION_DURATION = 800;
@@ -67,7 +67,7 @@ public class LineChatConfig {
     LineChatHelper mChatHelper;
     LinkedHashMap<String, InternalChatInfo> mChatMap;
     volatile boolean reapply;
-    boolean needPrepare;//如果重新设置过config，则需要重新prepare
+    boolean needPrepare = true;//如果重新设置过config，则需要重新prepare
 
     Paint coordinateTextPaint;
     Paint coordinateLinePaint;
@@ -179,7 +179,7 @@ public class LineChatConfig {
     }
 
     protected boolean isReady() {
-        return mChatMap != null && !mChatMap.isEmpty();
+        return mChatHelper.isReady;
     }
 
     LineChatConfig setReapply(boolean reapply) {
@@ -217,6 +217,7 @@ public class LineChatConfig {
 
 
     class LineChatHelper {
+        private boolean isReady;
         double maxValue;
         double minValue;
 
@@ -313,7 +314,7 @@ public class LineChatConfig {
                     Map.Entry<String, InternalChatInfo> entry = (Map.Entry<String, InternalChatInfo>) iterator.next();
                     InternalChatInfo info = entry.getValue();
                     xCoordinateLength = Math.max(xCoordinateLength, info.getRawInfoListSize());
-                    mChatLists.add(info.calculateYpercent(minValue, maxValue));
+                    mChatLists.add(info.calculateYpercent(minValue - yCoordinateAccuracyFloat, maxValue + yCoordinateAccuracyFloat));
                 }
             }
             return mChatLists;
@@ -322,6 +323,7 @@ public class LineChatConfig {
 
         void prepare(@Nullable LineChatPrepareConfig prepareConfig) {
             if (!needPrepare) return;
+            isReady = false;
             mPrepareConfig = prepareConfig;
             //清除旧有数据
             clearData();
@@ -332,6 +334,7 @@ public class LineChatConfig {
             }
             getChatLists();
             needPrepare = false;
+            isReady = true;
         }
 
         private void clearData() {

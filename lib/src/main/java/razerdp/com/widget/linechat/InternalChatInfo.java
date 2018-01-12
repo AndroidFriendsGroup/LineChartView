@@ -49,6 +49,7 @@ final class InternalChatInfo {
     }
 
     InternalChatInfo add(ILineChatInfo info) {
+        if (info == null) return this;
         if (mInfos == null) {
             mInfos = new ArrayList<>();
         }
@@ -65,8 +66,13 @@ final class InternalChatInfo {
         return result;
     }
 
+    LineChatInfoWrapper getInfo(int index) {
+        if (index < 0 || index >= mInfos.size()) return null;
+        return mInfos.get(index);
+    }
+
     InternalChatInfo calculateYpercent(double minValue, double maxValue) {
-        double range = Math.abs(maxValue - minValue);
+        double range = Math.abs(maxValue);
         for (LineChatInfoWrapper info : mInfos) {
             double yPercent = Math.abs(info.mInfo.getValue()) / range;
             info.setyPercent(yPercent);
@@ -74,7 +80,7 @@ final class InternalChatInfo {
         return this;
     }
 
-    int getRawInfoListSize(){
+    int getRawInfoListSize() {
         return mInfos.size();
     }
 }

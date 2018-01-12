@@ -2,11 +2,15 @@ package razerdp.com.widget.linechat;
 
 import android.content.Context;
 import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Paint;
+import android.graphics.Path;
 import android.graphics.Rect;
 import android.graphics.RectF;
 import android.support.annotation.Nullable;
 import android.text.TextUtils;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.View;
 
 import java.util.List;
@@ -59,10 +63,10 @@ public class LineChatView extends View {
         if (mConfig.reapply) mConfig.setReapply(false);
     }
 
-    public void applyConfig(LineChatConfig config) {
-        if (config == null) return;
+    public LineChatView applyConfig(LineChatConfig config) {
+        if (config == null) return this;
         applyConfigInternal(config);
-        postInvalidate();
+        return this;
     }
 
     @Override
@@ -128,23 +132,82 @@ public class LineChatView extends View {
 
     }
 
+    //debug
+    Paint prePointP = new Paint(Paint.ANTI_ALIAS_FLAG);
+    Paint curPointP = new Paint(Paint.ANTI_ALIAS_FLAG);
+    Paint afterPointP = new Paint(Paint.ANTI_ALIAS_FLAG);
+
     private void drawLineChat(Canvas canvas) {
+        prePointP.setColor(Color.RED);
+        curPointP.setColor(Color.GREEN);
+        afterPointP.setColor(Color.BLUE);
+
         List<InternalChatInfo> chatLineLists = mConfig.mChatHelper.getChatLists();
         if (ToolUtil.isListEmpty(chatLineLists)) return;
-        //前控制点
-        float preControlX;
-        float preControlY;
-        //中心点
-        float curX;
-        float curY;
-        //后控制点
-        float afterControlX;
-        float afterControlY;
+        Rect textBounds = mConfig.mChatHelper.getCoordinateTextSize(null);
 
         float xFreq = mDrawRect.width() / mConfig.mChatHelper.xCoordinateLength;
-        for (InternalChatInfo chatLineList : chatLineLists) {
 
+        final int size = mConfig.mChatHelper.xCoordinateLength;
+        final float contentHeight = mDrawRect.height() - textBounds.height();
 
+        List<InternalChatInfo> list = mConfig.mChatHelper.getChatLists();
+        if (ToolUtil.isListEmpty(list)) return;
+        for (int i = 0; i < size - 1; i++) {
+            for (InternalChatInfo info : list) {
+                Path p = info.linePath;
+                LineChatInfoWrapper curInfoWrapper = info.getInfo(i);
+                LineChatInfoWrapper nextInfoWrapper = info.getInfo(i + 1);
+
+                if (curInfoWrapper != null && nextInfoWrapper != null) {
+
+                    //当前线段
+                    float startPointX = 0;
+                    float startPointY = 0;
+                    //下一条线段
+                    float endPointX = 0;
+                    float endPointY = 0;
+
+                    //前控制点
+                    float preControlX = 0;
+                    float preControlY = 0;
+                    //后控制点
+                    float afterControlX = 0;
+                    float afterControlY = 0;
+
+                    startPointY = (float) (contentHeight * (1 - curInfoWrapper.yPercent));
+                    if (i == 0) {
+                        p.reset();
+                        startPointX = mDrawRect.left + textBounds.width();
+                        preControlX = startPointX;
+                        p.moveTo(startPointX, startPointY);
+                    } else {
+                        startPointX = mDrawRect.left + textBounds.width() + xFreq * i;
+                    }
+
+                    endPointX = startPointX + xFreq;
+                    endPointY = (float) (contentHeight * (1 - nextInfoWrapper.yPercent));
+
+                    preControlX = preControlX == 0 ? (startPointX + endPointX) / 2 : preControlX;
+                    preControlY = startPointY;
+
+                    afterControlX = endPointX;
+                    afterControlY = endPointY;
+
+                    Log.i(TAG, "drawLineChat: y  >>  " + endPointY + "   contentHeight  >>  " + contentHeight + "  percent  >>  " + curInfoWrapper.yPercent + "%");
+
+//                    p.lineTo(endPointX, endPointY);
+                    p.cubicTo(preControlX, preControlY, afterControlX, afterControlY, endPointX, endPointY);
+                    canvas.drawPath(p, info.linePaint);
+
+                    canvas.drawCircle(preControlX, preControlY, 4, prePointP);
+                    canvas.drawCircle(endPointX, endPointY, 8, curPointP);
+                    canvas.drawCircle(afterControlX, afterControlY, 4, afterPointP);
+
+                    canvas.drawLine(preControlX, preControlY, endPointX, endPointY, mConfig.coordinateLinePaint);
+                    canvas.drawLine(afterControlX, afterControlY, endPointX, endPointY, mConfig.coordinateLinePaint);
+                }
+            }
         }
 
     }
@@ -158,6 +221,7 @@ public class LineChatView extends View {
         if (isInAnimating) return;
         isInAnimating = true;
         mConfig.mChatHelper.prepare(prepareConfig);
+        postInvalidate();
     }
 
 
