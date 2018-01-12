@@ -31,7 +31,10 @@ public class MainActivity extends AppCompatActivity {
             info.setValue(Math.random());
             simpleLineChatInfos.add(info);
         }
-        config.addDatas("line1", simpleLineChatInfos);
+        config.addDatas("line1", simpleLineChatInfos)
+                .setStartXcoordinateDesc("2017-06-29")
+                .setEndXcoordinateDesc("2018-01-12");
+
         testView.applyConfig(config);
     }
 }

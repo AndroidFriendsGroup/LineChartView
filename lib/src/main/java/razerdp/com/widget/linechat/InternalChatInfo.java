@@ -12,7 +12,7 @@ import java.util.List;
 final class InternalChatInfo {
     final String lineTag;
 
-    List<ILineChatInfo> mInfos;
+    List<LineChatInfoWrapper> mInfos;
     Paint linePaint;
     Paint hightLightCirclePaint;
     Path linePath;
@@ -52,8 +52,29 @@ final class InternalChatInfo {
         if (mInfos == null) {
             mInfos = new ArrayList<>();
         }
-        mInfos.add(info);
+        mInfos.add(new LineChatInfoWrapper(info));
         initPaint(info);
         return this;
+    }
+
+    List<? extends ILineChatInfo> getRawInfoList() {
+        List<ILineChatInfo> result = new ArrayList<>();
+        for (LineChatInfoWrapper info : mInfos) {
+            result.add(info.mInfo);
+        }
+        return result;
+    }
+
+    InternalChatInfo calculateYpercent(double minValue, double maxValue) {
+        double range = Math.abs(maxValue - minValue);
+        for (LineChatInfoWrapper info : mInfos) {
+            double yPercent = Math.abs(info.mInfo.getValue()) / range;
+            info.setyPercent(yPercent);
+        }
+        return this;
+    }
+
+    int getRawInfoListSize(){
+        return mInfos.size();
     }
 }

@@ -5,6 +5,7 @@ import android.graphics.Canvas;
 import android.graphics.Rect;
 import android.graphics.RectF;
 import android.support.annotation.Nullable;
+import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.view.View;
 
@@ -28,6 +29,7 @@ public class LineChatView extends View {
     private LineChatConfig mConfig;
     private RectF mDrawRect;
     private boolean needResetDrawRect = false;
+    private volatile boolean isInAnimating;
 
 
     public LineChatView(Context context) {
@@ -81,11 +83,13 @@ public class LineChatView extends View {
     private void handleDrawMode(Canvas canvas) {
         //绘制坐标
         drawCoordinate(canvas);
+        //绘制折线
+        drawLineChat(canvas);
 
     }
 
     private void drawCoordinate(Canvas canvas) {
-        List<String> yCoordinateDesc = mConfig.mChatHelper.getYCoordinateDesc("%1$s%%");
+        List<String> yCoordinateDesc = mConfig.mChatHelper.getYCoordinateDesc();
         if (ToolUtil.isListEmpty(yCoordinateDesc)) return;
         Rect textBounds = mConfig.mChatHelper.getCoordinateTextSize(null);
         float drawStartX = mDrawRect.left;
@@ -107,7 +111,55 @@ public class LineChatView extends View {
             if (curY <= mDrawRect.top) curY = mDrawRect.top + mConfig.elementPadding;
         }
 
+        if (!TextUtils.isEmpty(mConfig.startXcoordinateDesc)) {
+            //横坐标文字
+            float drawXcoorStartX = drawStartX + textBounds.width();
+            float drawXcoorStartY = mDrawRect.bottom;
+            canvas.drawText(mConfig.startXcoordinateDesc, drawXcoorStartX, drawXcoorStartY, mConfig.coordinateTextPaint);
+        }
+
+        if (!TextUtils.isEmpty(mConfig.endXcoordinateDesc)) {
+            Rect xCoorTextRect = mConfig.mChatHelper.getCoordinateTextSize(mConfig.endXcoordinateDesc);
+            float drawXcoorEndX = mDrawRect.right - xCoorTextRect.width();
+            float drawXcoorEndY = mDrawRect.bottom;
+            canvas.drawText(mConfig.endXcoordinateDesc, drawXcoorEndX, drawXcoorEndY, mConfig.coordinateTextPaint);
+        }
+
+
     }
+
+    private void drawLineChat(Canvas canvas) {
+        List<InternalChatInfo> chatLineLists = mConfig.mChatHelper.getChatLists();
+        if (ToolUtil.isListEmpty(chatLineLists)) return;
+        //前控制点
+        float preControlX;
+        float preControlY;
+        //中心点
+        float curX;
+        float curY;
+        //后控制点
+        float afterControlX;
+        float afterControlY;
+
+        float xFreq = mDrawRect.width() / mConfig.mChatHelper.xCoordinateLength;
+        for (InternalChatInfo chatLineList : chatLineLists) {
+
+
+        }
+
+    }
+
+
+    public void start() {
+        start(null);
+    }
+
+    public void start(LineChatPrepareConfig prepareConfig) {
+        if (isInAnimating) return;
+        isInAnimating = true;
+        mConfig.mChatHelper.prepare(prepareConfig);
+    }
+
 
     //=============================================================tools
 
