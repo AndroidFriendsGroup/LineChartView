@@ -162,11 +162,11 @@ public class LineChatView extends View {
                 if (curInfoWrapper != null && nextInfoWrapper != null) {
 
                     //当前线段
-                    float startPointX = 0;
-                    float startPointY = 0;
+                    float curX = 0;
+                    float curY = 0;
                     //下一条线段
-                    float endPointX = 0;
-                    float endPointY = 0;
+                    float nextX = 0;
+                    float nextY = 0;
 
                     //前控制点
                     float preControlX = 0;
@@ -175,37 +175,38 @@ public class LineChatView extends View {
                     float afterControlX = 0;
                     float afterControlY = 0;
 
-                    startPointY = (float) (contentHeight * (1 - curInfoWrapper.yPercent));
+                    curX = mDrawRect.left + textBounds.width();
+                    curY = (float) (contentHeight * (1 - curInfoWrapper.yPercent));
                     if (i == 0) {
                         p.reset();
-                        startPointX = mDrawRect.left + textBounds.width();
-                        preControlX = startPointX;
-                        p.moveTo(startPointX, startPointY);
+                        preControlX = curX;
+                        preControlY = curY;
+                        p.moveTo(curX, curY);
                     } else {
-                        startPointX = mDrawRect.left + textBounds.width() + xFreq * i;
+                        curX += xFreq * i;
                     }
 
-                    endPointX = startPointX + xFreq;
-                    endPointY = (float) (contentHeight * (1 - nextInfoWrapper.yPercent));
+                    nextX = curX + xFreq;
+                    nextY = (float) (contentHeight * (1 - nextInfoWrapper.yPercent));
 
-                    preControlX = preControlX == 0 ? (startPointX + endPointX) / 2 : preControlX;
-                    preControlY = startPointY;
+                    preControlX = curX + nextX / 2;
+                    preControlY = curY;
 
-                    afterControlX = endPointX;
-                    afterControlY = endPointY;
+                    afterControlX = nextX;
+                    afterControlY = nextY;
 
-                    Log.i(TAG, "drawLineChat: y  >>  " + endPointY + "   contentHeight  >>  " + contentHeight + "  percent  >>  " + curInfoWrapper.yPercent + "%");
+                    Log.i(TAG, "drawLineChat: y  >>  " + nextY + "   contentHeight  >>  " + contentHeight + "  percent  >>  " + curInfoWrapper.yPercent + "%");
 
 //                    p.lineTo(endPointX, endPointY);
-                    p.cubicTo(preControlX, preControlY, afterControlX, afterControlY, endPointX, endPointY);
+                    p.cubicTo(preControlX, preControlY, afterControlX, afterControlY, nextX, nextY);
                     canvas.drawPath(p, info.linePaint);
 
                     canvas.drawCircle(preControlX, preControlY, 4, prePointP);
-                    canvas.drawCircle(endPointX, endPointY, 8, curPointP);
+                    canvas.drawCircle(nextX, nextY, 8, curPointP);
                     canvas.drawCircle(afterControlX, afterControlY, 4, afterPointP);
 
-                    canvas.drawLine(preControlX, preControlY, endPointX, endPointY, mConfig.coordinateLinePaint);
-                    canvas.drawLine(afterControlX, afterControlY, endPointX, endPointY, mConfig.coordinateLinePaint);
+                    canvas.drawLine(preControlX, preControlY, nextX, nextY, mConfig.coordinateLinePaint);
+                    canvas.drawLine(afterControlX, afterControlY, nextX, nextY, mConfig.coordinateLinePaint);
                 }
             }
         }
