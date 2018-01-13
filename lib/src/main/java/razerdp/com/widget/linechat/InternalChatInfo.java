@@ -2,6 +2,8 @@ package razerdp.com.widget.linechat;
 
 import android.graphics.Paint;
 import android.graphics.Path;
+import android.graphics.Rect;
+import android.graphics.RectF;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -16,6 +18,7 @@ final class InternalChatInfo {
     Paint linePaint;
     Paint hightLightCirclePaint;
     Path linePath;
+    Path measureLinePath;
 
     public InternalChatInfo(String lineTag) {
         this(lineTag, null);
@@ -46,6 +49,10 @@ final class InternalChatInfo {
         if (linePath == null) {
             linePath = new Path();
         }
+
+        if (measureLinePath == null) {
+            measureLinePath = new Path();
+        }
     }
 
     InternalChatInfo add(ILineChatInfo info) {
@@ -71,11 +78,19 @@ final class InternalChatInfo {
         return mInfos.get(index);
     }
 
-    InternalChatInfo calculateYpercent(double minValue, double maxValue) {
-        double range = Math.abs(maxValue);
-        for (LineChatInfoWrapper info : mInfos) {
+    InternalChatInfo calculatePosition(LineChatConfig chatConfig) {
+        double range = Math.abs(chatConfig.mChatHelper.maxValue + chatConfig.yCoordinateAccuracyFloat);
+        Rect textBounds = chatConfig.mChatHelper.getCoordinateTextSize(null);
+        RectF drawRect = chatConfig.mChatHelper.mPrepareConfig.drawRectf;
+        float startX = drawRect.left + textBounds.width();
+        final int size = chatConfig.mChatHelper.xCoordinateLength;
+        final float contentHeight = drawRect.height() - textBounds.height();
+        float xFreq = drawRect.width() / size;
+
+        for (int i = 0; i < mInfos.size(); i++) {
+            LineChatInfoWrapper info = mInfos.get(i);
             double yPercent = Math.abs(info.mInfo.getValue()) / range;
-            info.setyPercent(yPercent);
+            info.setPosition(startX + xFreq * i, (float) (contentHeight * (1 - yPercent)));
         }
         return this;
     }

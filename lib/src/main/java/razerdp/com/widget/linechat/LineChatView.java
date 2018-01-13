@@ -1,16 +1,19 @@
 package razerdp.com.widget.linechat;
 
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
+import android.animation.ValueAnimator;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Path;
+import android.graphics.PathMeasure;
 import android.graphics.Rect;
 import android.graphics.RectF;
 import android.support.annotation.Nullable;
 import android.text.TextUtils;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.View;
 
 import java.util.List;
@@ -24,6 +27,8 @@ import razerdp.com.widget.util.ToolUtil;
 public class LineChatView extends View {
     private static final String TAG = "LineChatView";
 
+    private static final boolean DEBUG = false;
+
     private enum Mode {
         DRAW,
         TOUCH
@@ -34,7 +39,14 @@ public class LineChatView extends View {
     private RectF mDrawRect;
     private boolean needResetDrawRect = false;
     private volatile boolean isInAnimating;
+    private PathMeasure mPathMeasure;
+    private volatile float mAnimationInterpolatedTime;
 
+
+    //debug
+    Paint prePointP;
+    Paint curPointP;
+    Paint afterPointP;
 
     public LineChatView(Context context) {
         this(context, null);
@@ -52,7 +64,7 @@ public class LineChatView extends View {
     private void init() {
         if (mConfig == null) mConfig = new LineChatConfig();
         mDrawRect = new RectF();
-
+        mPathMeasure = new PathMeasure();
     }
 
     void applyConfigInternal(LineChatConfig config) {
@@ -132,16 +144,7 @@ public class LineChatView extends View {
 
     }
 
-    //debug
-    Paint prePointP = new Paint(Paint.ANTI_ALIAS_FLAG);
-    Paint curPointP = new Paint(Paint.ANTI_ALIAS_FLAG);
-    Paint afterPointP = new Paint(Paint.ANTI_ALIAS_FLAG);
-
     private void drawLineChat(Canvas canvas) {
-        prePointP.setColor(Color.RED);
-        curPointP.setColor(Color.GREEN);
-        afterPointP.setColor(Color.BLUE);
-
         List<InternalChatInfo> chatLineLists = mConfig.mChatHelper.getChatLists();
         if (ToolUtil.isListEmpty(chatLineLists)) return;
         Rect textBounds = mConfig.mChatHelper.getCoordinateTextSize(null);
@@ -153,6 +156,8 @@ public class LineChatView extends View {
 
         List<InternalChatInfo> list = mConfig.mChatHelper.getChatLists();
         if (ToolUtil.isListEmpty(list)) return;
+
+
         for (int i = 0; i < size - 1; i++) {
             for (InternalChatInfo info : list) {
                 Path p = info.linePath;
@@ -160,14 +165,6 @@ public class LineChatView extends View {
                 LineChatInfoWrapper nextInfoWrapper = info.getInfo(i + 1);
 
                 if (curInfoWrapper != null && nextInfoWrapper != null) {
-
-                    //当前线段
-                    float curX = 0;
-                    float curY = 0;
-                    //下一条线段
-                    float nextX = 0;
-                    float nextY = 0;
-
                     //前控制点
                     float preControlX = 0;
                     float preControlY = 0;
@@ -175,38 +172,42 @@ public class LineChatView extends View {
                     float afterControlX = 0;
                     float afterControlY = 0;
 
-                    curX = mDrawRect.left + textBounds.width();
-                    curY = (float) (contentHeight * (1 - curInfoWrapper.yPercent));
+                    //0的时候reset
                     if (i == 0) {
                         p.reset();
-                        preControlX = curX;
-                        preControlY = curY;
-                        p.moveTo(curX, curY);
-                    } else {
-                        curX += xFreq * i;
+                        p.moveTo(curInfoWrapper.getX(), curInfoWrapper.getY());
                     }
 
-                    nextX = curX + xFreq;
-                    nextY = (float) (contentHeight * (1 - nextInfoWrapper.yPercent));
+                    preControlX = (curInfoWrapper.getX() + nextInfoWrapper.getX()) / 2;
+                    preControlY = curInfoWrapper.getY();
 
-                    preControlX = curX + nextX / 2;
-                    preControlY = curY;
+                    afterControlX = (curInfoWrapper.getX() + nextInfoWrapper.getX()) / 2;
+                    afterControlY = nextInfoWrapper.getY();
 
-                    afterControlX = nextX;
-                    afterControlY = nextY;
+                    float endX = nextInfoWrapper.getX();
+                    float endY = nextInfoWrapper.getY();
+//                    p.lineTo(curInfoWrapper.getX(), curInfoWrapper.getY());
+                    p.cubicTo(preControlX, preControlY, afterControlX, afterControlY, endX, endY);
+                    if (isInAnimating) {
+                        Path measurePath = info.measureLinePath;
+                        measurePath.rewind();
+                        mPathMeasure.nextContour();
+                        mPathMeasure.setPath(p, false);
+                        mPathMeasure.getSegment(0, mAnimationInterpolatedTime * mPathMeasure.getLength(), measurePath, true);
+                        canvas.drawPath(measurePath, info.linePaint);
+                    } else {
+                        canvas.drawPath(p, info.linePaint);
+                    }
 
-                    Log.i(TAG, "drawLineChat: y  >>  " + nextY + "   contentHeight  >>  " + contentHeight + "  percent  >>  " + curInfoWrapper.yPercent + "%");
+                    //debug用
+                    if (DEBUG) {
+                        canvas.drawCircle(preControlX, preControlY, 4, prePointP);
+                        canvas.drawCircle(endX, endY, 8, curPointP);
+                        canvas.drawCircle(afterControlX, afterControlY, 4, afterPointP);
 
-//                    p.lineTo(endPointX, endPointY);
-                    p.cubicTo(preControlX, preControlY, afterControlX, afterControlY, nextX, nextY);
-                    canvas.drawPath(p, info.linePaint);
-
-                    canvas.drawCircle(preControlX, preControlY, 4, prePointP);
-                    canvas.drawCircle(nextX, nextY, 8, curPointP);
-                    canvas.drawCircle(afterControlX, afterControlY, 4, afterPointP);
-
-                    canvas.drawLine(preControlX, preControlY, nextX, nextY, mConfig.coordinateLinePaint);
-                    canvas.drawLine(afterControlX, afterControlY, nextX, nextY, mConfig.coordinateLinePaint);
+                        canvas.drawLine(curInfoWrapper.getX(), curInfoWrapper.getY(), preControlX, preControlY, mConfig.coordinateLinePaint);
+                        canvas.drawLine(nextInfoWrapper.getX(), nextInfoWrapper.getY(), afterControlX, afterControlY, mConfig.coordinateLinePaint);
+                    }
                 }
             }
         }
@@ -221,10 +222,53 @@ public class LineChatView extends View {
     public void start(LineChatPrepareConfig prepareConfig) {
         if (isInAnimating) return;
         isInAnimating = true;
-        mConfig.mChatHelper.prepare(prepareConfig);
-        postInvalidate();
+        if (mConfig.reapply) {
+            applyConfigInternal(mConfig);
+        }
+        final LineChatPrepareConfig config = prepareConfig == null ? new LineChatPrepareConfig() : prepareConfig;
+        post(new Runnable() {
+            @Override
+            public void run() {
+                initDrawRect();
+                config.setDrawRect(mDrawRect);
+                mConfig.mChatHelper.prepare(config);
+                if (mConfig.animation) {
+                    startWithAnima();
+                } else {
+                    invalidate();
+                }
+            }
+        });
     }
 
+    private void startWithAnima() {
+        ValueAnimator animator = ValueAnimator.ofFloat(0f, 1f);
+        animator.setDuration(mConfig.duration);
+        animator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+            @Override
+            public void onAnimationUpdate(ValueAnimator animation) {
+                mAnimationInterpolatedTime = (float) animation.getAnimatedValue();
+                invalidate();
+            }
+        });
+        animator.addListener(new AnimatorListenerAdapter() {
+            @Override
+            public void onAnimationStart(Animator animation) {
+                isInAnimating = true;
+            }
+
+            @Override
+            public void onAnimationCancel(Animator animation) {
+                isInAnimating = false;
+            }
+
+            @Override
+            public void onAnimationEnd(Animator animation) {
+                isInAnimating = false;
+            }
+        });
+        animator.start();
+    }
 
     //=============================================================tools
 
@@ -244,5 +288,21 @@ public class LineChatView extends View {
     protected void onSizeChanged(int w, int h, int oldw, int oldh) {
         super.onSizeChanged(w, h, oldw, oldh);
         needResetDrawRect = true;
+    }
+
+    private void initDebug() {
+        if (!DEBUG) return;
+        if (prePointP == null) {
+            prePointP = new Paint(Paint.ANTI_ALIAS_FLAG);
+        }
+        if (curPointP == null) {
+            curPointP = new Paint(Paint.ANTI_ALIAS_FLAG);
+        }
+        if (afterPointP == null) {
+            afterPointP = new Paint(Paint.ANTI_ALIAS_FLAG);
+        }
+        prePointP.setColor(Color.RED);
+        curPointP.setColor(Color.GREEN);
+        afterPointP.setColor(Color.BLUE);
     }
 }

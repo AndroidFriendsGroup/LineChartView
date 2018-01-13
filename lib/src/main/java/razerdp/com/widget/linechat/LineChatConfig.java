@@ -36,10 +36,10 @@ public class LineChatConfig {
     private static final int DEFAULT_COORDINATE_TEXT_COLOR = DEFAULT_COORDINATE_LINE_COLOR;
 
     private static final int DEFAULT_Y_COORDINATE_ACCURACY_LEVEL = 6;//Y坐标精度：6个
-    private static final float DEFAULT_Y_COORDINATE_ACCURACY_FLOAT = 0.1f;//y坐标10%浮动
+    private static final float DEFAULT_Y_COORDINATE_ACCURACY_FLOAT = 0.25f;//y坐标10%浮动
     private static final float DEFAULT_ELEMENT_PADDING = 10;//元素之间的默认padding
 
-    private static final long DEFAULT_ANIMATION_DURATION = 800;
+    private static final long DEFAULT_ANIMATION_DURATION = 2000;
     private static final boolean DEFAULT_START_WITH_ANIMATION = true;
 
     //-----------------------------------------static value end-----------------------------------------
@@ -66,7 +66,7 @@ public class LineChatConfig {
 
     LineChatHelper mChatHelper;
     LinkedHashMap<String, InternalChatInfo> mChatMap;
-    volatile boolean reapply;
+    volatile boolean reapply = true;
     boolean needPrepare = true;//如果重新设置过config，则需要重新prepare
 
     Paint coordinateTextPaint;
@@ -240,6 +240,7 @@ public class LineChatConfig {
             //减少每次add的时候都要去map那里寻找的操作
             if (mLastAddedInfo != null && mLastAddedInfo.equals(lineTag)) {
                 mLastAddedInfo.lastAddedInternalChatInfo.add(info);
+                xCoordinateLength = Math.max(xCoordinateLength, mLastAddedInfo.lastAddedInternalChatInfo.getRawInfoListSize());
                 record(info);
                 return LineChatConfig.this;
             } else {
@@ -252,6 +253,7 @@ public class LineChatConfig {
                 mChatMap.put(lineTag, internalChatInfo);
             }
             internalChatInfo.add(info);
+            xCoordinateLength = Math.max(xCoordinateLength, internalChatInfo.getRawInfoListSize());
 
             if (mLastAddedInfo == null) {
                 mLastAddedInfo = new LastAddedInfo(lineTag, internalChatInfo);
@@ -313,8 +315,7 @@ public class LineChatConfig {
                 while (iterator.hasNext()) {
                     Map.Entry<String, InternalChatInfo> entry = (Map.Entry<String, InternalChatInfo>) iterator.next();
                     InternalChatInfo info = entry.getValue();
-                    xCoordinateLength = Math.max(xCoordinateLength, info.getRawInfoListSize());
-                    mChatLists.add(info.calculateYpercent(minValue - yCoordinateAccuracyFloat, maxValue + yCoordinateAccuracyFloat));
+                    mChatLists.add(info.calculatePosition(LineChatConfig.this));
                 }
             }
             return mChatLists;
