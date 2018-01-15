@@ -1,6 +1,15 @@
 LineChatView
 ---
 
-a simple and useful linechat view
+[ ![Download](https://api.bintray.com/packages/razerdp/maven/LineChatView/images/download.svg) ](https://bintray.com/razerdp/maven/LineChatView/_latestVersion)
 
-说起来你可能不信，这个东东还在孕育中呢
+一个简单好用包含动画和手势的折线图
+
+依赖
+---
+
+***将{latest_version}替换成标签所示版本***
+
+```xml
+    compile 'com.github.AndroidFriendsGroup:LineChatView:{latest_version}
+```
