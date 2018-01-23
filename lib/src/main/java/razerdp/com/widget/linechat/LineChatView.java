@@ -277,7 +277,9 @@ public class LineChatView extends View {
 
     public void start(LineChatPrepareConfig prepareConfig) {
         if (isInAnimating) return;
-        isInAnimating = true;
+        if (mConfig.animation) {
+            isInAnimating = true;
+        }
         if (mConfig.reapply) {
             applyConfigInternal(mConfig);
         }

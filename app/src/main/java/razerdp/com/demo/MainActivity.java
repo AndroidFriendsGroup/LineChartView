@@ -51,7 +51,8 @@ public class MainActivity extends AppCompatActivity {
         config.addDatas("line1", simpleLineChatInfos)
                 .addDatas("line2", simpleLineChatInfos2)
                 .setStartXcoordinateDesc("2017-06-29")
-                .setEndXcoordinateDesc("2018-01-12");
+                .setEndXcoordinateDesc("2018-01-12")
+                .setAnimation(false);
 
         findViewById(R.id.btn_start).setOnClickListener(new View.OnClickListener() {
             @Override
