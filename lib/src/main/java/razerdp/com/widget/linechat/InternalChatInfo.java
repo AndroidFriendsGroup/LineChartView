@@ -19,6 +19,8 @@ final class InternalChatInfo {
     Paint hightLightCirclePaint;
     Path linePath;
     Path measureLinePath;
+    float startX;
+    float xFreq;
 
     public InternalChatInfo(String lineTag) {
         this(lineTag, null);
@@ -86,6 +88,9 @@ final class InternalChatInfo {
         final int size = chatConfig.mChatHelper.xCoordinateLength;
         final float contentHeight = drawRect.height() - textBounds.height();
         float xFreq = drawRect.width() / size;
+
+        this.startX = startX;
+        this.xFreq = xFreq;
 
         for (int i = 0; i < mInfos.size(); i++) {
             LineChatInfoWrapper info = mInfos.get(i);

@@ -33,14 +33,14 @@ public class MainActivity extends AppCompatActivity {
         List<SimpleLineChatInfo> simpleLineChatInfos2 = new ArrayList<>();
         double start = 0.18f;
         Random random = new Random();
-        for (int i = 0; i < 12; i++) {
+        for (int i = 0; i < 20; i++) {
             SimpleLineChatInfo info = new SimpleLineChatInfo();
             float r = random.nextFloat();
             info.setValue(start + r / 10);
             simpleLineChatInfos.add(info);
         }
 
-        for (int i = 0; i < 10; i++) {
+        for (int i = 0; i < 15; i++) {
             SimpleLineChatInfo info = new SimpleLineChatInfo();
             info.setChatLineColor(Color.parseColor("#3f51b5"));
             float r = random.nextFloat();

@@ -4,6 +4,7 @@ import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.animation.ValueAnimator;
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
@@ -14,6 +15,8 @@ import android.graphics.RectF;
 import android.support.annotation.Nullable;
 import android.text.TextUtils;
 import android.util.AttributeSet;
+import android.util.Log;
+import android.view.MotionEvent;
 import android.view.View;
 
 import java.util.List;
@@ -37,10 +40,23 @@ public class LineChatView extends View {
     private Mode mCurMode = Mode.DRAW;
     private LineChatConfig mConfig;
     private RectF mDrawRect;
+    private Paint touchGuideLinePaint;
+    private Paint touchGuidePointPaint;
     private boolean needResetDrawRect = false;
     private volatile boolean isInAnimating;
     private PathMeasure mPathMeasure;
     private volatile float mAnimationInterpolatedTime;
+
+    private float lastTouchX;
+    private float lastTouchY;
+    private MotionEvent lastEvent;
+
+
+    private volatile boolean mPaintFinish = false;
+    private boolean callInvalidateByUser = false;
+
+    private Bitmap mDrawBitmap;//使用bitmap缓存，防止onDraw里面有太多的绘制导致卡顿
+    private Canvas mPainterCanvas;
 
 
     //debug
@@ -72,6 +88,19 @@ public class LineChatView extends View {
             throw new NullPointerException("config为空");
         }
         mConfig.setConfig(config);
+        if (touchGuideLinePaint == null) {
+            touchGuideLinePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+            touchGuideLinePaint.setStyle(Paint.Style.STROKE);
+        }
+        touchGuideLinePaint.setStrokeWidth(mConfig.touchGuideLineWidth);
+        touchGuideLinePaint.setColor(mConfig.touchGuidLineColor);
+
+        if (touchGuidePointPaint == null) {
+            touchGuidePointPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+            touchGuidePointPaint.setStyle(Paint.Style.FILL);
+        }
+        touchGuidePointPaint.setColor(mConfig.touchGuidPointColor);
+
         if (mConfig.reapply) mConfig.setReapply(false);
     }
 
@@ -86,25 +115,33 @@ public class LineChatView extends View {
         super.onDraw(canvas);
         if (!mConfig.isReady()) return;
         initDrawRect();
-
-        switch (mCurMode) {
-            case DRAW:
-                handleDrawMode(canvas);
-                break;
-            case TOUCH:
-                break;
+        if (mDrawBitmap == null || mPainterCanvas == null) {
+            mDrawBitmap = Bitmap.createBitmap(getWidth(), getHeight(), Bitmap.Config.ARGB_8888);
+            mPainterCanvas = new Canvas(mDrawBitmap);
+        }
+        handleDraw(canvas, mPaintFinish);
+        if (!mConfig.animation && callInvalidateByUser) {
+            //动画会在动画的最后重置标志位，没有动画的话则需要判断是否用户执行的invalided也就是start方法
+            mPaintFinish = true;
+            callInvalidateByUser = false;
         }
     }
 
-    private void handleDrawMode(Canvas canvas) {
+    private void handleDraw(Canvas canvas, boolean drawCache) {
         //绘制坐标
-        drawCoordinate(canvas);
+        drawCoordinate(drawCache ? canvas : mPainterCanvas, drawCache);
         //绘制折线
-        drawLineChat(canvas);
-
+        drawLineChat(drawCache ? canvas : mPainterCanvas, drawCache);
+        if (!drawCache) {
+            canvas.drawBitmap(mDrawBitmap, getLeft(), getTop(), null);
+        }
     }
 
-    private void drawCoordinate(Canvas canvas) {
+    private void drawCoordinate(Canvas canvas, boolean drawCache) {
+        if (drawCache) {
+            canvas.drawBitmap(mDrawBitmap, getLeft(), getTop(), null);
+            return;
+        }
         List<String> yCoordinateDesc = mConfig.mChatHelper.getYCoordinateDesc();
         if (ToolUtil.isListEmpty(yCoordinateDesc)) return;
         Rect textBounds = mConfig.mChatHelper.getCoordinateTextSize(null);
@@ -144,7 +181,7 @@ public class LineChatView extends View {
 
     }
 
-    private void drawLineChat(Canvas canvas) {
+    private void drawLineChat(Canvas canvas, boolean drawCache) {
         List<InternalChatInfo> chatLineLists = mConfig.mChatHelper.getChatLists();
         if (ToolUtil.isListEmpty(chatLineLists)) return;
         Rect textBounds = mConfig.mChatHelper.getCoordinateTextSize(null);
@@ -152,66 +189,85 @@ public class LineChatView extends View {
         float xFreq = mDrawRect.width() / mConfig.mChatHelper.xCoordinateLength;
 
         final int size = mConfig.mChatHelper.xCoordinateLength;
-        final float contentHeight = mDrawRect.height() - textBounds.height();
+        final float contentHeight = mDrawRect.height() - textBounds.height() - mConfig.elementPadding;
 
         List<InternalChatInfo> list = mConfig.mChatHelper.getChatLists();
         if (ToolUtil.isListEmpty(list)) return;
 
+        float startX = 0;
 
-        for (int i = 0; i < size - 1; i++) {
-            for (InternalChatInfo info : list) {
-                Path p = info.linePath;
-                LineChatInfoWrapper curInfoWrapper = info.getInfo(i);
-                LineChatInfoWrapper nextInfoWrapper = info.getInfo(i + 1);
+        if (drawCache) {
+            canvas.drawBitmap(mDrawBitmap, getLeft(), getTop(), null);
+        } else {
+            for (int i = 0; i < size - 1; i++) {
+                for (InternalChatInfo info : list) {
+                    if (startX == 0) startX = info.startX;
+                    Path p = info.linePath;
+                    LineChatInfoWrapper curInfoWrapper = info.getInfo(i);
+                    LineChatInfoWrapper nextInfoWrapper = info.getInfo(i + 1);
 
-                if (curInfoWrapper != null && nextInfoWrapper != null) {
-                    //前控制点
-                    float preControlX = 0;
-                    float preControlY = 0;
-                    //后控制点
-                    float afterControlX = 0;
-                    float afterControlY = 0;
+                    if (curInfoWrapper != null && nextInfoWrapper != null) {
+                        //前控制点
+                        float preControlX = 0;
+                        float preControlY = 0;
+                        //后控制点
+                        float afterControlX = 0;
+                        float afterControlY = 0;
 
-                    //0的时候reset
-                    if (i == 0) {
-                        p.reset();
-                        p.moveTo(curInfoWrapper.getX(), curInfoWrapper.getY());
-                    }
+                        //0的时候reset
+                        if (i == 0) {
+                            p.reset();
+                            p.moveTo(curInfoWrapper.getX(), curInfoWrapper.getY());
+                        }
 
-                    preControlX = (curInfoWrapper.getX() + nextInfoWrapper.getX()) / 2;
-                    preControlY = curInfoWrapper.getY();
+                        preControlX = (curInfoWrapper.getX() + nextInfoWrapper.getX()) / 2;
+                        preControlY = curInfoWrapper.getY();
 
-                    afterControlX = (curInfoWrapper.getX() + nextInfoWrapper.getX()) / 2;
-                    afterControlY = nextInfoWrapper.getY();
+                        afterControlX = (curInfoWrapper.getX() + nextInfoWrapper.getX()) / 2;
+                        afterControlY = nextInfoWrapper.getY();
 
-                    float endX = nextInfoWrapper.getX();
-                    float endY = nextInfoWrapper.getY();
+                        float endX = nextInfoWrapper.getX();
+                        float endY = nextInfoWrapper.getY();
 //                    p.lineTo(curInfoWrapper.getX(), curInfoWrapper.getY());
-                    p.cubicTo(preControlX, preControlY, afterControlX, afterControlY, endX, endY);
-                    if (isInAnimating) {
-                        Path measurePath = info.measureLinePath;
-                        measurePath.rewind();
-                        mPathMeasure.nextContour();
-                        mPathMeasure.setPath(p, false);
-                        mPathMeasure.getSegment(0, mAnimationInterpolatedTime * mPathMeasure.getLength(), measurePath, true);
-                        canvas.drawPath(measurePath, info.linePaint);
-                    } else {
-                        canvas.drawPath(p, info.linePaint);
-                    }
+                        p.cubicTo(preControlX, preControlY, afterControlX, afterControlY, endX, endY);
+                        if (isInAnimating) {
+                            Path measurePath = info.measureLinePath;
+                            measurePath.rewind();
+                            mPathMeasure.nextContour();
+                            mPathMeasure.setPath(p, false);
+                            mPathMeasure.getSegment(0, mAnimationInterpolatedTime * mPathMeasure.getLength(), measurePath, true);
+                            canvas.drawPath(measurePath, info.linePaint);
+                        } else {
+                            canvas.drawPath(p, info.linePaint);
+                        }
 
-                    //debug用
-                    if (DEBUG) {
-                        canvas.drawCircle(preControlX, preControlY, 4, prePointP);
-                        canvas.drawCircle(endX, endY, 8, curPointP);
-                        canvas.drawCircle(afterControlX, afterControlY, 4, afterPointP);
+                        //debug用
+                        if (DEBUG) {
+                            canvas.drawCircle(preControlX, preControlY, 4, prePointP);
+                            canvas.drawCircle(endX, endY, 8, curPointP);
+                            canvas.drawCircle(afterControlX, afterControlY, 4, afterPointP);
 
-                        canvas.drawLine(curInfoWrapper.getX(), curInfoWrapper.getY(), preControlX, preControlY, mConfig.coordinateLinePaint);
-                        canvas.drawLine(nextInfoWrapper.getX(), nextInfoWrapper.getY(), afterControlX, afterControlY, mConfig.coordinateLinePaint);
+                            canvas.drawLine(curInfoWrapper.getX(), curInfoWrapper.getY(), preControlX, preControlY, mConfig.coordinateLinePaint);
+                            canvas.drawLine(nextInfoWrapper.getX(), nextInfoWrapper.getY(), afterControlX, afterControlY, mConfig.coordinateLinePaint);
+                        }
                     }
                 }
             }
         }
-
+        if (mCurMode == Mode.TOUCH && !isInAnimating) {
+            //手势
+            // FIXME: 2018/1/23 因为touch位置跟数据位置不一致，导致可能发生的触摸位置跟显示的位置不一致的问题
+            int index = (int) ((lastTouchX - startX) / xFreq);
+            for (InternalChatInfo info : list) {
+                if (startX == 0) startX = info.startX;
+                Log.i(TAG, "drawLineChat: index  >>>>  " + index);
+                LineChatInfoWrapper curInfoWrapper = info.getInfo(index);
+                if (curInfoWrapper != null) {
+                    canvas.drawLine(curInfoWrapper.getX(), mDrawRect.top, curInfoWrapper.getX(), mDrawRect.top + contentHeight, touchGuideLinePaint);
+                    canvas.drawCircle(curInfoWrapper.getX(), curInfoWrapper.getY(), mConfig.touchGuidePointRadius, touchGuidePointPaint);
+                }
+            }
+        }
     }
 
 
@@ -225,6 +281,11 @@ public class LineChatView extends View {
         if (mConfig.reapply) {
             applyConfigInternal(mConfig);
         }
+        if (mDrawBitmap != null) {
+            mDrawBitmap.recycle();
+            mDrawBitmap = null;
+        }
+        mPainterCanvas = null;
         final LineChatPrepareConfig config = prepareConfig == null ? new LineChatPrepareConfig() : prepareConfig;
         post(new Runnable() {
             @Override
@@ -235,6 +296,7 @@ public class LineChatView extends View {
                 if (mConfig.animation) {
                     startWithAnima();
                 } else {
+                    callInvalidateByUser = true;
                     invalidate();
                 }
             }
@@ -255,6 +317,7 @@ public class LineChatView extends View {
             @Override
             public void onAnimationStart(Animator animation) {
                 isInAnimating = true;
+                mPaintFinish = false;
             }
 
             @Override
@@ -265,10 +328,34 @@ public class LineChatView extends View {
             @Override
             public void onAnimationEnd(Animator animation) {
                 isInAnimating = false;
+                mPaintFinish = true;
             }
         });
         animator.start();
     }
+
+    //=============================================================touch
+
+    @Override
+    public boolean onTouchEvent(MotionEvent event) {
+        lastEvent = event;
+        lastTouchX = event.getX();
+        lastTouchY = event.getY();
+        switch (event.getAction()) {
+            case MotionEvent.ACTION_DOWN:
+                setMode(Mode.TOUCH);
+                return true;
+            case MotionEvent.ACTION_MOVE:
+                setMode(Mode.TOUCH);
+                break;
+            case MotionEvent.ACTION_UP:
+                setMode(Mode.DRAW);
+                lastTouchX = lastTouchY = -1;
+                break;
+        }
+        return super.onTouchEvent(event);
+    }
+
 
     //=============================================================tools
 
@@ -304,5 +391,20 @@ public class LineChatView extends View {
         prePointP.setColor(Color.RED);
         curPointP.setColor(Color.GREEN);
         afterPointP.setColor(Color.BLUE);
+    }
+
+    void setMode(Mode curMode) {
+        mCurMode = curMode;
+        invalidate();
+    }
+
+    @Override
+    protected void onDetachedFromWindow() {
+        if (mDrawBitmap != null) {
+            mDrawBitmap.recycle();
+            mDrawBitmap = null;
+        }
+        mPainterCanvas = null;
+        super.onDetachedFromWindow();
     }
 }
