@@ -8,6 +8,7 @@ import android.text.TextUtils;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -66,9 +67,12 @@ public class LineChatConfig {
     boolean animation = DEFAULT_START_WITH_ANIMATION;
 
     int touchGuideLineWidth = DEFAULT_TOUCH_GUIDE_LINE_WIDTH;
-    int touchGuidLineColor = DEFAULT_TOUCH_GUIDE_LINE_COLOR;
+    int touchGuideLineColor = DEFAULT_TOUCH_GUIDE_LINE_COLOR;
     int touchGuidePointRadius = DEFAULT_TOUCH_GUIDE_POINT_RADIUS;
-    int touchGuidPointColor = DEFAULT_TOUCH_GUIDE_POINT_COLOR;
+    int touchGuidePointColor = DEFAULT_TOUCH_GUIDE_POINT_COLOR;
+
+    HashMap<String, OnLineChatSelectedListener> mChatSelectedListenerHashMap;
+    List<String> highLineTag;
 
     //-----------------------------------------value config end-----------------------------------------
 
@@ -84,6 +88,8 @@ public class LineChatConfig {
     public LineChatConfig() {
         mChatHelper = new LineChatHelper();
         mChatMap = new LinkedHashMap<>();
+        mChatSelectedListenerHashMap = new HashMap<>();
+        highLineTag = new ArrayList<>();
         initPaint();
 
     }
@@ -104,25 +110,25 @@ public class LineChatConfig {
         coordinateLinePaint.setStrokeWidth(coordinateLineWidth);
     }
 
-    public LineChatConfig setCoordinateLineWidth(int coordinateLineWidth) {
+    public LineChatConfig coordinateLineWidth(int coordinateLineWidth) {
         this.coordinateLineWidth = coordinateLineWidth;
         initPaint();
         return setReapply(true);
     }
 
-    public LineChatConfig setCoordinateLineColor(int coordinateLineColor) {
+    public LineChatConfig coordinateLineColor(int coordinateLineColor) {
         this.coordinateLineColor = coordinateLineColor;
         initPaint();
         return setReapply(true);
     }
 
-    public LineChatConfig setCoordinateTextSize(int coordinateTextSize) {
+    public LineChatConfig coordinateTextSize(int coordinateTextSize) {
         this.coordinateTextSize = coordinateTextSize;
         initPaint();
         return setReapply(true);
     }
 
-    public LineChatConfig setCoordinateTextColor(int coordinateTextColor) {
+    public LineChatConfig coordinateTextColor(int coordinateTextColor) {
         this.coordinateTextColor = coordinateTextColor;
         initPaint();
         return setReapply(true);
@@ -140,58 +146,69 @@ public class LineChatConfig {
         return mChatHelper.addData(lineTag, info);
     }
 
-    public LineChatConfig setyCoordinateAccuracyLevel(int yCoordinateAccuracyLevel) {
+    public LineChatConfig coordinateAccuracyLevel(int yCoordinateAccuracyLevel) {
         this.yCoordinateAccuracyLevel = yCoordinateAccuracyLevel;
         return setReapply(true);
     }
 
-    public LineChatConfig setyCoordinateAccuracyFloat(float yCoordinateAccuracyFloat) {
+    public LineChatConfig coordinateAccuracyFloat(float yCoordinateAccuracyFloat) {
         this.yCoordinateAccuracyFloat = yCoordinateAccuracyFloat;
         return setReapply(true);
     }
 
-    public LineChatConfig setStartXcoordinateDesc(String startXcoordinateDesc) {
+    public LineChatConfig xCoordinateDescForStart(String startXcoordinateDesc) {
         this.startXcoordinateDesc = startXcoordinateDesc;
         return setReapply(true);
     }
 
-    public LineChatConfig setEndXcoordinateDesc(String endXcoordinateDesc) {
+    public LineChatConfig xCoordinateDescForEnd(String endXcoordinateDesc) {
         this.endXcoordinateDesc = endXcoordinateDesc;
         return setReapply(true);
     }
 
-    public LineChatConfig setElementPadding(float elementPadding) {
+    public LineChatConfig elementPadding(float elementPadding) {
         this.elementPadding = elementPadding;
         return setReapply(true);
     }
 
-    public LineChatConfig setDuration(long duration) {
+    public LineChatConfig animationDuration(long duration) {
         this.duration = duration;
         return setReapply(true);
     }
 
-    public LineChatConfig setAnimation(boolean animation) {
+    public LineChatConfig animationDraw(boolean animation) {
         this.animation = animation;
         return setReapply(true);
     }
 
-    public LineChatConfig setTouchGuideLineWidth(int touchGuideLineWidth) {
+    public LineChatConfig touchGuideLineWidth(int touchGuideLineWidth) {
         this.touchGuideLineWidth = touchGuideLineWidth;
         return setReapply(true);
     }
 
-    public LineChatConfig setTouchGuidLineColor(int touchGuidLineColor) {
-        this.touchGuidLineColor = touchGuidLineColor;
+    public LineChatConfig touchGuideLineColor(int touchGuidLineColor) {
+        this.touchGuideLineColor = touchGuidLineColor;
         return setReapply(true);
     }
 
-    public LineChatConfig setTouchGuidePointRadius(int touchGuidePointRadius) {
+    public LineChatConfig touchGuidePointRadius(int touchGuidePointRadius) {
         this.touchGuidePointRadius = touchGuidePointRadius;
         return setReapply(true);
     }
 
-    public LineChatConfig setTouchGuidPointColor(int touchGuidPointColor) {
-        this.touchGuidPointColor = touchGuidPointColor;
+    public LineChatConfig touchGuidePointColor(int touchGuidePointColor) {
+        this.touchGuidePointColor = touchGuidePointColor;
+        return setReapply(true);
+    }
+
+    public <T extends ILineChatInfo> LineChatConfig addChatSelectedListener(String lineTag, OnLineChatSelectedListener<T> chatSelectedListener) {
+        mChatSelectedListenerHashMap.put(lineTag, chatSelectedListener);
+        return setReapply(true);
+    }
+
+    public LineChatConfig enableLineTouchPoint(String... lineTags) {
+        if (lineTags == null) return this;
+        Collections.addAll(highLineTag, lineTags);
         return setReapply(true);
     }
 
@@ -222,31 +239,50 @@ public class LineChatConfig {
 
     LineChatConfig setConfig(LineChatConfig config) {
         if (config != null) {
-            setStartXcoordinateDesc(config.startXcoordinateDesc)
-                    .setEndXcoordinateDesc(config.endXcoordinateDesc)
-                    .setCoordinateLineColor(config.coordinateLineColor)
-                    .setCoordinateLineWidth(config.coordinateLineWidth)
-                    .setCoordinateTextColor(config.coordinateTextColor)
-                    .setCoordinateTextSize(config.coordinateTextSize)
-                    .setElementPadding(config.elementPadding)
-                    .setyCoordinateAccuracyFloat(config.yCoordinateAccuracyFloat)
-                    .setyCoordinateAccuracyLevel(config.yCoordinateAccuracyLevel)
-                    .setDuration(config.duration)
-                    .setAnimation(config.animation)
-                    .setTouchGuideLineWidth(config.touchGuideLineWidth)
-                    .setTouchGuidLineColor(config.touchGuidLineColor)
-                    .setTouchGuidePointRadius(config.touchGuidePointRadius)
-                    .setTouchGuidPointColor(config.touchGuidPointColor);
-            HashMap<String, InternalChatInfo> maps = new HashMap<>();
-            config.getChatMap(maps);
-            mChatMap.clear();
-            Iterator iterator = maps.entrySet().iterator();
-            while (iterator.hasNext()) {
-                Map.Entry<String, InternalChatInfo> entry = (Map.Entry<String, InternalChatInfo>) iterator.next();
-                addDatas(entry.getKey(), entry.getValue().getRawInfoList());
-            }
+            xCoordinateDescForStart(config.startXcoordinateDesc)
+                    .xCoordinateDescForEnd(config.endXcoordinateDesc)
+                    .coordinateLineColor(config.coordinateLineColor)
+                    .coordinateLineWidth(config.coordinateLineWidth)
+                    .coordinateTextColor(config.coordinateTextColor)
+                    .coordinateTextSize(config.coordinateTextSize)
+                    .elementPadding(config.elementPadding)
+                    .coordinateAccuracyFloat(config.yCoordinateAccuracyFloat)
+                    .coordinateAccuracyLevel(config.yCoordinateAccuracyLevel)
+                    .animationDuration(config.duration)
+                    .animationDraw(config.animation)
+                    .touchGuideLineWidth(config.touchGuideLineWidth)
+                    .touchGuideLineColor(config.touchGuideLineColor)
+                    .touchGuidePointRadius(config.touchGuidePointRadius)
+                    .touchGuidePointColor(config.touchGuidePointColor);
+            copyConfigArrays(config);
+
         }
         return this;
+    }
+
+    private void copyConfigArrays(LineChatConfig config) {
+        HashMap<String, InternalChatInfo> maps = new HashMap<>();
+        config.getChatMap(maps);
+        mChatMap.clear();
+        Iterator iterator = maps.entrySet().iterator();
+        while (iterator.hasNext()) {
+            Map.Entry<String, InternalChatInfo> entry = (Map.Entry<String, InternalChatInfo>) iterator.next();
+            addDatas(entry.getKey(), entry.getValue().getRawInfoList());
+        }
+        HashMap<String, OnLineChatSelectedListener> listenerMaps = new HashMap<>();
+        if (!config.mChatSelectedListenerHashMap.isEmpty()) {
+            listenerMaps.putAll(config.mChatSelectedListenerHashMap);
+            mChatSelectedListenerHashMap.clear();
+            mChatSelectedListenerHashMap.putAll(listenerMaps);
+        }
+
+        List<String> saves = new ArrayList<>();
+        if (!config.highLineTag.isEmpty()) {
+            saves.addAll(config.highLineTag);
+            highLineTag.clear();
+            highLineTag.addAll(saves);
+        }
+
     }
 
 

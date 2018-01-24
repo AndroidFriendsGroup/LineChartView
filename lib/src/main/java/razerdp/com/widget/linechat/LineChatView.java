@@ -93,13 +93,13 @@ public class LineChatView extends View {
             touchGuideLinePaint.setStyle(Paint.Style.STROKE);
         }
         touchGuideLinePaint.setStrokeWidth(mConfig.touchGuideLineWidth);
-        touchGuideLinePaint.setColor(mConfig.touchGuidLineColor);
+        touchGuideLinePaint.setColor(mConfig.touchGuideLineColor);
 
         if (touchGuidePointPaint == null) {
             touchGuidePointPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
             touchGuidePointPaint.setStyle(Paint.Style.FILL);
         }
-        touchGuidePointPaint.setColor(mConfig.touchGuidPointColor);
+        touchGuidePointPaint.setColor(mConfig.touchGuidePointColor);
 
         if (mConfig.reapply) mConfig.setReapply(false);
     }
@@ -133,13 +133,13 @@ public class LineChatView extends View {
         //绘制折线
         drawLineChat(drawCache ? canvas : mPainterCanvas, drawCache);
         if (!drawCache) {
-            canvas.drawBitmap(mDrawBitmap, getLeft(), getTop(), null);
+            canvas.drawBitmap(mDrawBitmap, 0, 0, null);
         }
     }
 
     private void drawCoordinate(Canvas canvas, boolean drawCache) {
         if (drawCache) {
-            canvas.drawBitmap(mDrawBitmap, getLeft(), getTop(), null);
+            canvas.drawBitmap(mDrawBitmap, 0, 0, null);
             return;
         }
         List<String> yCoordinateDesc = mConfig.mChatHelper.getYCoordinateDesc();
@@ -197,7 +197,7 @@ public class LineChatView extends View {
         float startX = 0;
 
         if (drawCache) {
-            canvas.drawBitmap(mDrawBitmap, getLeft(), getTop(), null);
+            canvas.drawBitmap(mDrawBitmap, 0, 0, null);
         } else {
             for (int i = 0; i < size - 1; i++) {
                 for (InternalChatInfo info : list) {
@@ -263,8 +263,14 @@ public class LineChatView extends View {
                 Log.i(TAG, "drawLineChat: index  >>>>  " + index);
                 LineChatInfoWrapper curInfoWrapper = info.getInfo(index);
                 if (curInfoWrapper != null) {
+                    OnLineChatSelectedListener listener = mConfig.mChatSelectedListenerHashMap.get(info.lineTag);
+                    if (listener != null) {
+                        listener.onSelected(info.lineTag, curInfoWrapper.mInfo);
+                    }
                     canvas.drawLine(curInfoWrapper.getX(), mDrawRect.top, curInfoWrapper.getX(), mDrawRect.top + contentHeight, touchGuideLinePaint);
-                    canvas.drawCircle(curInfoWrapper.getX(), curInfoWrapper.getY(), mConfig.touchGuidePointRadius, touchGuidePointPaint);
+                    if (mConfig.highLineTag.contains(info.lineTag)) {
+                        canvas.drawCircle(curInfoWrapper.getX(), curInfoWrapper.getY(), mConfig.touchGuidePointRadius, touchGuidePointPaint);
+                    }
                 }
             }
         }
