@@ -11,5 +11,5 @@ LineChatView
 ***将{latest_version}替换成标签所示版本***
 
 ```xml
-    compile 'com.github.AndroidFriendsGroup:LineChatView:{latest_version}
+    compile 'com.github.AndroidFriendsGroup:LineChatView:{latest_version}'
 ```
