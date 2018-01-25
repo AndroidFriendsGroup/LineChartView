@@ -93,7 +93,7 @@ final class InternalChatInfo {
         float startX = drawRect.left + textBounds.width();
         final int size = chatConfig.mChatHelper.xCoordinateLength;
         final float yFreq = drawRect.height() / chatConfig.yCoordinateAccuracyLevel;
-        final float contentBottom = drawRect.bottom - textBounds.height() - chatConfig.elementPadding ;
+        final float contentBottom = drawRect.bottom - textBounds.height() - chatConfig.elementPadding;
 
         float xFreq = (drawRect.width() - textBounds.width() - chatConfig.elementPadding) / size;
 
@@ -104,7 +104,7 @@ final class InternalChatInfo {
             LineChatInfoWrapper info = mInfos.get(i);
             double yPercent = Math.abs(info.mInfo.getValue()) / tMax;
             Log.i("percent", "calculatePosition: " + yPercent);
-            info.setPosition(startX + xFreq * i, (float) (contentBottom * yPercent));
+            info.setPosition(startX + xFreq * i, (float) ((contentBottom - yFreq) * yPercent));
         }
         return this;
     }

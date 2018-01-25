@@ -20,6 +20,15 @@
         android:padding="8dp"
         />
 
+    <TextView
+        android:id="@+id/tv_desc2"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:padding="8dp"
+        android:textColor="@color/colorPrimary"
+        />
+
     <razerdp.com.widget.linechat.LineChatView
         android:id="@+id/testView"
         android:layout_width="match_parent"

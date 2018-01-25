@@ -22,6 +22,7 @@ public class MainActivity extends AppCompatActivity {
 
     private LineChatView testView;
     TextView desc;
+    TextView desc2;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -33,6 +34,8 @@ public class MainActivity extends AppCompatActivity {
     private void initView() {
         testView = (LineChatView) findViewById(R.id.testView);
         desc = findViewById(R.id.tv_desc);
+        desc2 = findViewById(R.id.tv_desc2);
+
         final Random random = new Random();
 
         findViewById(R.id.btn_start).setOnClickListener(new View.OnClickListener() {
@@ -43,11 +46,18 @@ public class MainActivity extends AppCompatActivity {
                         .addDatas("line2", createData(random.nextDouble(), random, 30, Color.parseColor("#41A1EA")))
                         .xCoordinateDescForStart("2017-06-29")
                         .xCoordinateDescForEnd("2018-01-12")
-                        .enableLineTouchPoint("line1")
+                        .enableLineTouchPoint("line1","line2")
                         .addChatSelectedListener("line1", new OnLineChatSelectedListener<SimpleLineChatInfo>() {
                             @Override
                             public void onSelected(MotionEvent event, String lineTag, SimpleLineChatInfo data) {
                                 desc.setText("line >>  " + lineTag + "  value  >>  " + data.getValue());
+
+                            }
+                        })
+                        .addChatSelectedListener("line2", new OnLineChatSelectedListener<SimpleLineChatInfo>() {
+                            @Override
+                            public void onSelected(MotionEvent event, String lineTag, SimpleLineChatInfo data) {
+                                desc2.setText("line2 >>  " + lineTag + "  value  >>  " + data.getValue());
 
                             }
                         });
