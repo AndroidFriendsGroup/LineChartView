@@ -1,6 +1,7 @@
 package razerdp.com.widget.linechat;
 
 import android.graphics.Color;
+import android.graphics.DashPathEffect;
 import android.graphics.Paint;
 import android.graphics.Rect;
 import android.support.annotation.Nullable;
@@ -31,13 +32,12 @@ public class LineChatConfig {
 
     private static final DecimalFormat sFormateRate = new DecimalFormat("#.##");
     //坐标系
-    private static final int DEFAULT_COORDINATE_LINE_WIDTH = 2;
-    private static final int DEFAULT_COORDINATE_LINE_COLOR = Color.rgb(207, 207, 207);
-    private static final int DEFAULT_COORDINATE_TEXT_SIZE = 28;
-    private static final int DEFAULT_COORDINATE_TEXT_COLOR = DEFAULT_COORDINATE_LINE_COLOR;
+    private static final int DEFAULT_COORDINATE_LINE_WIDTH = 1;
+    private static final int DEFAULT_COORDINATE_LINE_COLOR = Color.argb(125, 207, 207, 207);
+    private static final int DEFAULT_COORDINATE_TEXT_SIZE = 24;
+    private static final int DEFAULT_COORDINATE_TEXT_COLOR = Color.rgb(207, 207, 207);
 
     private static final int DEFAULT_Y_COORDINATE_ACCURACY_LEVEL = 6;//Y坐标精度：6个
-    private static final float DEFAULT_Y_COORDINATE_ACCURACY_FLOAT = 0.25f;//y坐标10%浮动
     private static final float DEFAULT_ELEMENT_PADDING = 10;//元素之间的默认padding
 
     private static final long DEFAULT_ANIMATION_DURATION = 2000;
@@ -56,7 +56,6 @@ public class LineChatConfig {
     int coordinateTextColor = DEFAULT_COORDINATE_TEXT_COLOR;
 
     int yCoordinateAccuracyLevel = DEFAULT_Y_COORDINATE_ACCURACY_LEVEL;
-    float yCoordinateAccuracyFloat = DEFAULT_Y_COORDINATE_ACCURACY_FLOAT;
 
     float elementPadding = DEFAULT_ELEMENT_PADDING;
 
@@ -108,6 +107,7 @@ public class LineChatConfig {
         coordinateLinePaint.setStyle(Paint.Style.STROKE);
         coordinateLinePaint.setColor(coordinateLineColor);
         coordinateLinePaint.setStrokeWidth(coordinateLineWidth);
+        coordinateLinePaint.setPathEffect(new DashPathEffect(new float[]{5, 5}, 0));
     }
 
     public LineChatConfig coordinateLineWidth(int coordinateLineWidth) {
@@ -148,11 +148,6 @@ public class LineChatConfig {
 
     public LineChatConfig coordinateAccuracyLevel(int yCoordinateAccuracyLevel) {
         this.yCoordinateAccuracyLevel = yCoordinateAccuracyLevel;
-        return setReapply(true);
-    }
-
-    public LineChatConfig coordinateAccuracyFloat(float yCoordinateAccuracyFloat) {
-        this.yCoordinateAccuracyFloat = yCoordinateAccuracyFloat;
         return setReapply(true);
     }
 
@@ -231,7 +226,7 @@ public class LineChatConfig {
 
     LineChatConfig setReapply(boolean reapply) {
         this.reapply = reapply;
-        if (needPrepare) {
+        if (reapply) {
             needPrepare = true;
         }
         return this;
@@ -239,6 +234,7 @@ public class LineChatConfig {
 
     LineChatConfig setConfig(LineChatConfig config) {
         if (config != null) {
+            mChatHelper.reset();
             xCoordinateDescForStart(config.startXcoordinateDesc)
                     .xCoordinateDescForEnd(config.endXcoordinateDesc)
                     .coordinateLineColor(config.coordinateLineColor)
@@ -246,7 +242,6 @@ public class LineChatConfig {
                     .coordinateTextColor(config.coordinateTextColor)
                     .coordinateTextSize(config.coordinateTextSize)
                     .elementPadding(config.elementPadding)
-                    .coordinateAccuracyFloat(config.yCoordinateAccuracyFloat)
                     .coordinateAccuracyLevel(config.yCoordinateAccuracyLevel)
                     .animationDuration(config.duration)
                     .animationDraw(config.animation)
@@ -255,10 +250,10 @@ public class LineChatConfig {
                     .touchGuidePointRadius(config.touchGuidePointRadius)
                     .touchGuidePointColor(config.touchGuidePointColor);
             copyConfigArrays(config);
-
         }
         return this;
     }
+
 
     private void copyConfigArrays(LineChatConfig config) {
         HashMap<String, InternalChatInfo> maps = new HashMap<>();
@@ -305,6 +300,23 @@ public class LineChatConfig {
             textBounds = new Rect();
         }
 
+        void reset() {
+            textPaint = new Paint();
+            textBounds = new Rect();
+            maxValue = 0;
+            minValue = 0;
+            isReady = false;
+            mPrepareConfig = null;
+            if (mChatLists != null) {
+                mChatLists.clear();
+            }
+            xCoordinateLength = 0;
+            if (mYCoordinateDesc != null) {
+                mYCoordinateDesc.clear();
+            }
+            mLastAddedInfo = null;
+        }
+
         LineChatConfig addData(String lineTag, ILineChatInfo info) {
             if (info == null) return setReapply(true);
             //减少每次add的时候都要去map那里寻找的操作
@@ -343,24 +355,25 @@ public class LineChatConfig {
         }
 
         List<String> getYCoordinateDesc(String formated) {
+            if (yCoordinateAccuracyLevel <= 1) {
+                throw new IllegalArgumentException("y轴精度值不能小于2");
+            }
             if (mYCoordinateDesc == null) {
                 mYCoordinateDesc = new ArrayList<>();
             }
 
+            double yCoordinateAccuracyFloat = (maxValue - minValue) / 5;
             if (ToolUtil.isListEmpty(mYCoordinateDesc)) {
                 boolean needFormated = !TextUtils.isEmpty(formated);
 
-                double tMinValue = minValue - yCoordinateAccuracyFloat;
-                double tMaxValue = maxValue + yCoordinateAccuracyFloat;
+                final double tMinValue = minValue - yCoordinateAccuracyFloat;
+                final double tMaxValue = maxValue + yCoordinateAccuracyFloat;
 
-                double freq = Math.abs(tMaxValue - tMinValue) / yCoordinateAccuracyLevel;
-
-                double curValue = tMinValue;
-
-                while (curValue <= tMaxValue) {
-                    curValue += freq;
+                double freq = (tMaxValue - tMinValue) / (yCoordinateAccuracyLevel - 1);
+                for (int i = 0; i < yCoordinateAccuracyLevel; i++) {
+                    double curValue = tMinValue + freq * i;
                     String desc = sFormateRate.format(curValue);
-                    desc = curValue < 0 ? desc : "+" + desc;
+                    desc = (curValue < 0 ? "-" : "+") + desc;
                     desc = needFormated ? String.format(Locale.getDefault(), formated, desc) : desc;
                     mYCoordinateDesc.add(desc);
                 }

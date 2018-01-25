@@ -4,6 +4,7 @@ import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.Rect;
 import android.graphics.RectF;
+import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -81,21 +82,29 @@ final class InternalChatInfo {
     }
 
     InternalChatInfo calculatePosition(LineChatConfig chatConfig) {
-        double range = Math.abs(chatConfig.mChatHelper.maxValue + chatConfig.yCoordinateAccuracyFloat);
+        double yAccuracy = (chatConfig.mChatHelper.maxValue - chatConfig.mChatHelper.minValue) / 5;
+        double tMax = chatConfig.mChatHelper.maxValue + yAccuracy;
+        double tMin = chatConfig.mChatHelper.minValue - yAccuracy;
+
+        final double range = tMax - tMin;
+
         Rect textBounds = chatConfig.mChatHelper.getCoordinateTextSize(null);
         RectF drawRect = chatConfig.mChatHelper.mPrepareConfig.drawRectf;
         float startX = drawRect.left + textBounds.width();
         final int size = chatConfig.mChatHelper.xCoordinateLength;
-        final float contentHeight = drawRect.height() - textBounds.height();
-        float xFreq = drawRect.width() / size;
+        final float yFreq = drawRect.height() / chatConfig.yCoordinateAccuracyLevel;
+        final float contentBottom = drawRect.bottom - textBounds.height() - chatConfig.elementPadding ;
+
+        float xFreq = (drawRect.width() - textBounds.width() - chatConfig.elementPadding) / size;
 
         this.startX = startX;
         this.xFreq = xFreq;
 
         for (int i = 0; i < mInfos.size(); i++) {
             LineChatInfoWrapper info = mInfos.get(i);
-            double yPercent = Math.abs(info.mInfo.getValue()) / range;
-            info.setPosition(startX + xFreq * i, (float) (contentHeight * (1 - yPercent)));
+            double yPercent = Math.abs(info.mInfo.getValue()) / tMax;
+            Log.i("percent", "calculatePosition: " + yPercent);
+            info.setPosition(startX + xFreq * i, (float) (contentBottom * yPercent));
         }
         return this;
     }

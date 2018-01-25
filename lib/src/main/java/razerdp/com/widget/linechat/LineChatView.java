@@ -15,7 +15,6 @@ import android.graphics.RectF;
 import android.support.annotation.Nullable;
 import android.text.TextUtils;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 
@@ -260,16 +259,18 @@ public class LineChatView extends View {
             int index = (int) ((lastTouchX - startX) / xFreq);
             for (InternalChatInfo info : list) {
                 if (startX == 0) startX = info.startX;
-                Log.i(TAG, "drawLineChat: index  >>>>  " + index);
                 LineChatInfoWrapper curInfoWrapper = info.getInfo(index);
                 if (curInfoWrapper != null) {
                     OnLineChatSelectedListener listener = mConfig.mChatSelectedListenerHashMap.get(info.lineTag);
                     if (listener != null) {
-                        listener.onSelected(info.lineTag, curInfoWrapper.mInfo);
+                        listener.onSelected(lastEvent, info.lineTag, curInfoWrapper.mInfo);
                     }
-                    canvas.drawLine(curInfoWrapper.getX(), mDrawRect.top, curInfoWrapper.getX(), mDrawRect.top + contentHeight, touchGuideLinePaint);
+                    canvas.drawLine(curInfoWrapper.getX(), mDrawRect.top, curInfoWrapper.getX(), mDrawRect.top + contentHeight - mConfig.elementPadding, touchGuideLinePaint);
                     if (mConfig.highLineTag.contains(info.lineTag)) {
                         canvas.drawCircle(curInfoWrapper.getX(), curInfoWrapper.getY(), mConfig.touchGuidePointRadius, touchGuidePointPaint);
+                    }
+                    if (lastEvent != null && lastEvent.getAction() == MotionEvent.ACTION_UP) {
+                        setMode(Mode.DRAW);
                     }
                 }
             }
@@ -294,6 +295,7 @@ public class LineChatView extends View {
             mDrawBitmap = null;
         }
         mPainterCanvas = null;
+        lastEvent = null;
         final LineChatPrepareConfig config = prepareConfig == null ? new LineChatPrepareConfig() : prepareConfig;
         post(new Runnable() {
             @Override
@@ -354,11 +356,8 @@ public class LineChatView extends View {
                 setMode(Mode.TOUCH);
                 return true;
             case MotionEvent.ACTION_MOVE:
-                setMode(Mode.TOUCH);
-                break;
             case MotionEvent.ACTION_UP:
-                setMode(Mode.DRAW);
-                lastTouchX = lastTouchY = -1;
+                setMode(Mode.TOUCH);
                 break;
         }
         return super.onTouchEvent(event);
@@ -403,6 +402,10 @@ public class LineChatView extends View {
 
     void setMode(Mode curMode) {
         mCurMode = curMode;
+        if (mCurMode == Mode.DRAW) {
+            lastTouchX = lastTouchY = -1;
+            lastEvent = null;
+        }
         invalidate();
     }
 

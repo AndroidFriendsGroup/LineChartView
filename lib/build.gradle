@@ -5,7 +5,7 @@ android {
     compileSdkVersion 26
 
     defaultConfig {
-        minSdkVersion 16
+        minSdkVersion 14
         targetSdkVersion 26
         versionCode 1
         versionName "1.0"
@@ -40,7 +40,7 @@ publish {
     userOrg = 'razerdp'
     groupId = 'com.github.AndroidFriendsGroup'
     artifactId = 'LineChatView'
-    publishVersion = '1.0.1'
+    publishVersion = '1.0.2'
     desc = 'a simple and useful linechat view'
     website = 'https://github.com/AndroidFriendsGroup/LineChatView'
 }

@@ -3,6 +3,7 @@ package razerdp.com.demo;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.TextView;
 
@@ -32,44 +33,38 @@ public class MainActivity extends AppCompatActivity {
     private void initView() {
         testView = (LineChatView) findViewById(R.id.testView);
         desc = findViewById(R.id.tv_desc);
-        final LineChatConfig config = new LineChatConfig();
-        List<SimpleLineChatInfo> simpleLineChatInfos = new ArrayList<>();
-        List<SimpleLineChatInfo> simpleLineChatInfos2 = new ArrayList<>();
-        double start = 0.18f;
-        Random random = new Random();
-        for (int i = 0; i < 20; i++) {
-            SimpleLineChatInfo info = new SimpleLineChatInfo();
-            float r = random.nextFloat();
-            info.setValue(start + r / 10).setDesc(Double.toString(info.getValue()));
-            simpleLineChatInfos.add(info);
-        }
-
-        for (int i = 0; i < 15; i++) {
-            SimpleLineChatInfo info = new SimpleLineChatInfo();
-            info.setChatLineColor(Color.parseColor("#3f51b5"));
-            float r = random.nextFloat();
-            info.setValue(start + r / 10).setDesc(Double.toString(info.getValue()));
-            simpleLineChatInfos2.add(info);
-        }
-
-        config.addDatas("line1", simpleLineChatInfos)
-                .addDatas("line2", simpleLineChatInfos2)
-                .xCoordinateDescForStart("2017-06-29")
-                .xCoordinateDescForEnd("2018-01-12")
-                .animationDraw(false)
-                .enableLineTouchPoint("line1")
-                .addChatSelectedListener("line1", new OnLineChatSelectedListener<SimpleLineChatInfo>() {
-                    @Override
-                    public void onSelected(String lineTag, SimpleLineChatInfo data) {
-                        desc.setText("line >>  " + lineTag + "  value  >>  " + data.getValue());
-                    }
-                });
+        final Random random = new Random();
 
         findViewById(R.id.btn_start).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                LineChatConfig config = new LineChatConfig();
+                config.addDatas("line1", createData(random.nextDouble(), random, 20, Color.parseColor("#FD9726")))
+                        .addDatas("line2", createData(random.nextDouble(), random, 30, Color.parseColor("#41A1EA")))
+                        .xCoordinateDescForStart("2017-06-29")
+                        .xCoordinateDescForEnd("2018-01-12")
+                        .enableLineTouchPoint("line1")
+                        .addChatSelectedListener("line1", new OnLineChatSelectedListener<SimpleLineChatInfo>() {
+                            @Override
+                            public void onSelected(MotionEvent event, String lineTag, SimpleLineChatInfo data) {
+                                desc.setText("line >>  " + lineTag + "  value  >>  " + data.getValue());
+
+                            }
+                        });
                 testView.applyConfig(config).start(new LineChatPrepareConfig().setYcoordinateFormated("%s%%"));
             }
         });
+    }
+
+    private List<SimpleLineChatInfo> createData(double start, Random random, int count, int color) {
+        List<SimpleLineChatInfo> result = new ArrayList<>();
+        for (int i = 0; i < count; i++) {
+            SimpleLineChatInfo info = new SimpleLineChatInfo();
+            info.setChatLineColor(color);
+            float r = random.nextFloat();
+            info.setValue(start + r / 10).setDesc(Double.toString(info.getValue()));
+            result.add(info);
+        }
+        return result;
     }
 }
