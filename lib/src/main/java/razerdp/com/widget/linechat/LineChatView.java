@@ -144,19 +144,20 @@ public class LineChatView extends View {
         List<String> yCoordinateDesc = mConfig.mChatHelper.getYCoordinateDesc();
         if (ToolUtil.isListEmpty(yCoordinateDesc)) return;
         Rect textBounds = mConfig.mChatHelper.getCoordinateTextSize(null);
-        float drawStartX = mDrawRect.left;
+        float drawStartX = mConfig.mChatHelper.lineBounds.left;
         //底部横坐标文字高度也要计算
-        float drawStartY = mDrawRect.bottom - mConfig.mChatHelper.getCoordinateTextSize(null).height() - mConfig.elementPadding;
+        float drawStartY = mConfig.mChatHelper.lineBounds.bottom;
         //步幅
-        float yFreq = mDrawRect.height() / yCoordinateDesc.size();
+        float yFreq = mConfig.mChatHelper.lineBounds.height() / (yCoordinateDesc.size() - 1);
 
         float curY = drawStartY;
         for (String s : yCoordinateDesc) {
             canvas.drawText(s, drawStartX, curY, mConfig.coordinateTextPaint);
+            //坐标轴在文字的中间
             float lineY = curY - (textBounds.height() >> 1);
             canvas.drawLine(drawStartX + textBounds.width() + mConfig.elementPadding,
                     lineY,
-                    mDrawRect.right,
+                    mConfig.mChatHelper.lineBounds.right,
                     lineY,
                     mConfig.coordinateLinePaint);
             curY -= yFreq;

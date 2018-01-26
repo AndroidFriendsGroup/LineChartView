@@ -82,29 +82,34 @@ final class InternalChatInfo {
     }
 
     InternalChatInfo calculatePosition(LineChatConfig chatConfig) {
-        double yAccuracy = (chatConfig.mChatHelper.maxValue - chatConfig.mChatHelper.minValue) / 5;
+//        double yAccuracy = (chatConfig.mChatHelper.maxValue - chatConfig.mChatHelper.minValue) / 5;
+        double yAccuracy = 0;
+
         double tMax = chatConfig.mChatHelper.maxValue + yAccuracy;
         double tMin = chatConfig.mChatHelper.minValue - yAccuracy;
-
         final double range = tMax - tMin;
 
         Rect textBounds = chatConfig.mChatHelper.getCoordinateTextSize(null);
-        RectF drawRect = chatConfig.mChatHelper.mPrepareConfig.drawRectf;
-        float startX = drawRect.left + textBounds.width();
-        final int size = chatConfig.mChatHelper.xCoordinateLength;
-        final float yFreq = drawRect.height() / chatConfig.yCoordinateAccuracyLevel;
-        final float contentBottom = drawRect.bottom - textBounds.height() - chatConfig.elementPadding;
+        RectF lineBounds = chatConfig.mChatHelper.lineBounds;
 
-        float xFreq = (drawRect.width() - textBounds.width() - chatConfig.elementPadding) / size;
+        final float xCoorWidth = lineBounds.width() - textBounds.width() - chatConfig.elementPadding;
+
+        float startX = lineBounds.left + textBounds.width();
+        final int size = chatConfig.mChatHelper.xCoordinateLength;
+
+        final float yFreq = lineBounds.height() / chatConfig.yCoordinateAccuracyLevel;
+        final float contentHeight = lineBounds.height() - (textBounds.height() >> 1);
+
+        float xFreq = xCoorWidth / size;
 
         this.startX = startX;
         this.xFreq = xFreq;
 
         for (int i = 0; i < mInfos.size(); i++) {
             LineChatInfoWrapper info = mInfos.get(i);
-            double yPercent = Math.abs(info.mInfo.getValue()) / tMax;
-            Log.i("percent", "calculatePosition: " + yPercent);
-            info.setPosition(startX + xFreq * i, (float) ((contentBottom - yFreq) * yPercent));
+            double yPercent = 1 - (Math.abs(info.mInfo.getValue()) / tMax);
+            Log.i("percent", "perycent: " + yPercent + "   value  >>  " + info.mInfo.getValue());
+            info.setPosition(startX + xFreq * i, (float) (lineBounds.top + (contentHeight * yPercent)));
         }
         return this;
     }

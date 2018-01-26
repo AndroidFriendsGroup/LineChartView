@@ -4,8 +4,10 @@ import android.graphics.Color;
 import android.graphics.DashPathEffect;
 import android.graphics.Paint;
 import android.graphics.Rect;
-import android.support.annotation.Nullable;
+import android.graphics.RectF;
+import android.support.annotation.NonNull;
 import android.text.TextUtils;
+import android.util.Log;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
@@ -45,7 +47,7 @@ public class LineChatConfig {
 
     private static final int DEFAULT_TOUCH_GUIDE_LINE_WIDTH = 2;
     private static final int DEFAULT_TOUCH_GUIDE_LINE_COLOR = Color.BLACK;
-    private static final int DEFAULT_TOUCH_GUIDE_POINT_RADIUS = 8;
+    private static final int DEFAULT_TOUCH_GUIDE_POINT_RADIUS = 4;
     private static final int DEFAULT_TOUCH_GUIDE_POINT_COLOR = Color.BLACK;
 
     //-----------------------------------------static value end-----------------------------------------
@@ -283,36 +285,41 @@ public class LineChatConfig {
 
     class LineChatHelper {
         private boolean isReady;
-        double maxValue;
-        double minValue;
+        double maxValue = Double.MIN_VALUE;
+        double minValue = Double.MAX_VALUE;
 
         LastAddedInfo mLastAddedInfo;
         private List<String> mYCoordinateDesc;
         Paint textPaint;
         Rect textBounds;
+        RectF lineBounds;
         LineChatPrepareConfig mPrepareConfig;
         List<InternalChatInfo> mChatLists;
         int xCoordinateLength;
 
 
         public LineChatHelper() {
-            textPaint = new Paint();
-            textBounds = new Rect();
+            reset();
         }
 
         void reset() {
             textPaint = new Paint();
             textBounds = new Rect();
-            maxValue = 0;
-            minValue = 0;
+            lineBounds = new RectF();
+            maxValue = Double.MIN_VALUE;
+            minValue = Double.MAX_VALUE;
             isReady = false;
             mPrepareConfig = null;
             if (mChatLists != null) {
                 mChatLists.clear();
+            } else {
+                mChatLists = new ArrayList<>();
             }
             xCoordinateLength = 0;
             if (mYCoordinateDesc != null) {
                 mYCoordinateDesc.clear();
+            } else {
+                mYCoordinateDesc = new ArrayList<>();
             }
             mLastAddedInfo = null;
         }
@@ -346,7 +353,7 @@ public class LineChatConfig {
 
         private void record(ILineChatInfo info) {
             final double value = info.getValue();
-            minValue = Math.min(value, maxValue);
+            minValue = Math.min(value, minValue);
             maxValue = Math.max(value, maxValue);
         }
 
@@ -358,16 +365,17 @@ public class LineChatConfig {
             if (yCoordinateAccuracyLevel <= 1) {
                 throw new IllegalArgumentException("y轴精度值不能小于2");
             }
-            if (mYCoordinateDesc == null) {
-                mYCoordinateDesc = new ArrayList<>();
-            }
 
-            double yCoordinateAccuracyFloat = (maxValue - minValue) / 5;
+//            double yCoordinateAccuracyFloat = (maxValue - minValue) / 5;
+            double yCoordinateAccuracyFloat = 0;
+
             if (ToolUtil.isListEmpty(mYCoordinateDesc)) {
                 boolean needFormated = !TextUtils.isEmpty(formated);
 
                 final double tMinValue = minValue - yCoordinateAccuracyFloat;
                 final double tMaxValue = maxValue + yCoordinateAccuracyFloat;
+
+                Log.i(TAG, "min: " + tMinValue + "  max:  " + tMaxValue);
 
                 double freq = (tMaxValue - tMinValue) / (yCoordinateAccuracyLevel - 1);
                 for (int i = 0; i < yCoordinateAccuracyLevel; i++) {
@@ -390,9 +398,6 @@ public class LineChatConfig {
         }
 
         List<InternalChatInfo> getChatLists() {
-            if (mChatLists == null) {
-                mChatLists = new ArrayList<>();
-            }
             if (ToolUtil.isListEmpty(mChatLists)) {
                 Iterator iterator = mChatMap.entrySet().iterator();
                 while (iterator.hasNext()) {
@@ -405,20 +410,23 @@ public class LineChatConfig {
         }
 
 
-        void prepare(@Nullable LineChatPrepareConfig prepareConfig) {
-            if (!needPrepare) return;
+        void prepare(@NonNull LineChatPrepareConfig prepareConfig) {
+            if (!needPrepare || prepareConfig == null) return;
             isReady = false;
             mPrepareConfig = prepareConfig;
+            calculateLineDrawBounds(prepareConfig.drawRectf);
             //清除旧有数据
             clearData();
-            if (prepareConfig != null) {
-                getYCoordinateDesc(prepareConfig.mYcoordinateFormated);
-            } else {
-                getYCoordinateDesc(null);
-            }
+            getYCoordinateDesc(prepareConfig.mYcoordinateFormated);
             getChatLists();
             needPrepare = false;
             isReady = true;
+        }
+
+        private void calculateLineDrawBounds(RectF drawRectf) {
+            if (lineBounds != null) lineBounds.setEmpty();
+            float drawStartY = drawRectf.bottom - getCoordinateTextSize(null).height() - elementPadding;
+            lineBounds.set(drawRectf.left, drawRectf.top, drawRectf.right, drawStartY);
         }
 
         private void clearData() {
@@ -429,7 +437,6 @@ public class LineChatConfig {
             if (!ToolUtil.isListEmpty(mChatLists)) {
                 mChatLists.clear();
             }
-
         }
 
         class LastAddedInfo {
