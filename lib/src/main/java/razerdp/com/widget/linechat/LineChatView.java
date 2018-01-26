@@ -146,22 +146,19 @@ public class LineChatView extends View {
         Rect textBounds = mConfig.mChatHelper.getCoordinateTextSize(null);
         float drawStartX = mConfig.mChatHelper.lineBounds.left;
         //底部横坐标文字高度也要计算
-        float drawStartY = mConfig.mChatHelper.lineBounds.bottom;
-        //步幅
-        float yFreq = mConfig.mChatHelper.lineBounds.height() / (yCoordinateDesc.size() - 1);
+        final float drawStartY = mConfig.mChatHelper.lineBounds.bottom;
 
-        float curY = drawStartY;
-        for (String s : yCoordinateDesc) {
+        for (int i = 0; i < yCoordinateDesc.size(); i++) {
+            String s = yCoordinateDesc.get(i);
+            float curY = drawStartY - mConfig.mChatHelper.lineBounds.height() * i / mConfig.yCoordinateAccuracyLevel;
+
             canvas.drawText(s, drawStartX, curY, mConfig.coordinateTextPaint);
             //坐标轴在文字的中间
-            float lineY = curY - (textBounds.height() >> 1);
             canvas.drawLine(drawStartX + textBounds.width() + mConfig.elementPadding,
-                    lineY,
+                    curY - (textBounds.height() >> 1),
                     mConfig.mChatHelper.lineBounds.right,
-                    lineY,
+                    curY - (textBounds.height() >> 1),
                     mConfig.coordinateLinePaint);
-            curY -= yFreq;
-            if (curY <= mDrawRect.top) curY = mDrawRect.top + mConfig.elementPadding;
         }
 
         if (!TextUtils.isEmpty(mConfig.startXcoordinateDesc)) {
@@ -266,7 +263,7 @@ public class LineChatView extends View {
                     if (listener != null) {
                         listener.onSelected(lastEvent, info.lineTag, curInfoWrapper.mInfo);
                     }
-                    canvas.drawLine(curInfoWrapper.getX(), mDrawRect.top, curInfoWrapper.getX(), mDrawRect.top + contentHeight - mConfig.elementPadding, touchGuideLinePaint);
+                    canvas.drawLine(curInfoWrapper.getX(), mConfig.mChatHelper.lineBounds.top, curInfoWrapper.getX(), mConfig.mChatHelper.lineBounds.bottom, touchGuideLinePaint);
                     if (mConfig.highLineTag.contains(info.lineTag)) {
                         canvas.drawCircle(curInfoWrapper.getX(), curInfoWrapper.getY(), mConfig.touchGuidePointRadius, touchGuidePointPaint);
                     }

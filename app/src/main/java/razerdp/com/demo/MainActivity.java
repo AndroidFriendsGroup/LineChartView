@@ -51,7 +51,7 @@ public class MainActivity extends AppCompatActivity {
     private void applyConfig(Random random) {
         LineChatConfig config = new LineChatConfig();
         config.addDatas("line1", createData(random.nextDouble(), random, 20, Color.parseColor("#FD9726")))
-                        .addDatas("line2", createData(random.nextDouble(), random, 30, Color.parseColor("#41A1EA")))
+//                .addDatas("line2", createData(random.nextDouble(), random, 30, Color.parseColor("#41A1EA")))
                 .xCoordinateDescForStart("2017-06-29")
                 .xCoordinateDescForEnd("2018-01-12")
                 .enableLineTouchPoint("line1", "line2")
@@ -74,14 +74,14 @@ public class MainActivity extends AppCompatActivity {
 
     private List<SimpleLineChatInfo> createData(double start, Random random, int count, int color) {
         List<SimpleLineChatInfo> result = new ArrayList<>();
-        for (int i = 0; i < count; i++) {
+       /* for (int i = 0; i < count; i++) {
             SimpleLineChatInfo info = new SimpleLineChatInfo();
             info.setChatLineColor(color);
             float r = random.nextFloat();
             info.setValue(start + r / 10).setDesc(Double.toString(info.getValue()));
             result.add(info);
-        }
-  /*      result.add(createInfo(0.2, color));
+        }*/
+        result.add(createInfo(0.2, color));
         result.add(createInfo(0.4, color));
         result.add(createInfo(0.3, color));
         result.add(createInfo(0.6, color));
@@ -96,7 +96,7 @@ public class MainActivity extends AppCompatActivity {
         result.add(createInfo(0.3, color));
         result.add(createInfo(0.5, color));
         result.add(createInfo(0.6, color));
-        result.add(createInfo(1.5, color));*/
+        result.add(createInfo(1.5, color));
 
         return result;
     }

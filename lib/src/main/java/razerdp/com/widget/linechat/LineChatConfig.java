@@ -426,6 +426,7 @@ public class LineChatConfig {
         private void calculateLineDrawBounds(RectF drawRectf) {
             if (lineBounds != null) lineBounds.setEmpty();
             float drawStartY = drawRectf.bottom - getCoordinateTextSize(null).height() - elementPadding;
+            float yFreq = (drawStartY - drawRectf.top) / yCoordinateAccuracyLevel;
             lineBounds.set(drawRectf.left, drawRectf.top, drawRectf.right, drawStartY);
         }
 
