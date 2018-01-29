@@ -128,7 +128,7 @@ public class LineChartView extends View {
 
     private void handleDraw(Canvas canvas, boolean drawCache) {
         //绘制坐标
-        drawCoordinate(drawCache ? canvas : mPainterCanvas, drawCache);
+        drawAxis(drawCache ? canvas : mPainterCanvas, drawCache);
         //绘制折线
         drawLineChat(drawCache ? canvas : mPainterCanvas, drawCache);
         if (!drawCache) {
@@ -136,7 +136,7 @@ public class LineChartView extends View {
         }
     }
 
-    private void drawCoordinate(Canvas canvas, boolean drawCache) {
+    private void drawAxis(Canvas canvas, boolean drawCache) {
         if (drawCache) {
             canvas.drawBitmap(mDrawBitmap, 0, 0, null);
             return;

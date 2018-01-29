@@ -8,6 +8,7 @@ import android.graphics.RectF;
 import android.support.annotation.NonNull;
 import android.text.TextUtils;
 import android.util.Log;
+import android.util.Pair;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
@@ -34,12 +35,12 @@ public class LineChartConfig {
 
     private static final DecimalFormat sFormateRate = new DecimalFormat("#.##");
     //坐标系
-    private static final int DEFAULT_COORDINATE_LINE_WIDTH = 1;
-    private static final int DEFAULT_COORDINATE_LINE_COLOR = Color.argb(125, 207, 207, 207);
-    private static final int DEFAULT_COORDINATE_TEXT_SIZE = 24;
-    private static final int DEFAULT_COORDINATE_TEXT_COLOR = Color.rgb(207, 207, 207);
+    private static final int DEFAULT_AXIS_LINE_WIDTH = 1;
+    private static final int DEFAULT_AXIS_LINE_COLOR = Color.argb(125, 207, 207, 207);
+    private static final int DEFAULT_AXIS_TEXT_SIZE = 24;
+    private static final int DEFAULT_AXIS_TEXT_COLOR = Color.rgb(207, 207, 207);
 
-    private static final int DEFAULT_Y_COORDINATE_ACCURACY_LEVEL = 6;//Y坐标精度：6个
+    private static final int DEFAULT_Y_AXIS_COUNT = 6;//Y坐标精度：6个
     private static final float DEFAULT_ELEMENT_PADDING = 10;//元素之间的默认padding
 
     private static final long DEFAULT_ANIMATION_DURATION = 2000;
@@ -52,12 +53,12 @@ public class LineChartConfig {
 
     //-----------------------------------------static value end-----------------------------------------
 
-    int coordinateLineWidth = DEFAULT_COORDINATE_LINE_WIDTH;
-    int coordinateLineColor = DEFAULT_COORDINATE_LINE_COLOR;
-    int coordinateTextSize = DEFAULT_COORDINATE_TEXT_SIZE;
-    int coordinateTextColor = DEFAULT_COORDINATE_TEXT_COLOR;
+    int axisLineWidth = DEFAULT_AXIS_LINE_WIDTH;
+    int axisLineColor = DEFAULT_AXIS_LINE_COLOR;
+    int axisTextSize = DEFAULT_AXIS_TEXT_SIZE;
+    int axisTextColor = DEFAULT_AXIS_TEXT_COLOR;
 
-    int yCoordinateAccuracyLevel = DEFAULT_Y_COORDINATE_ACCURACY_LEVEL;
+    int yCoordinateAccuracyLevel = DEFAULT_Y_AXIS_COUNT;
 
     float elementPadding = DEFAULT_ELEMENT_PADDING;
 
@@ -103,35 +104,35 @@ public class LineChartConfig {
             coordinateLinePaint = new Paint(Paint.ANTI_ALIAS_FLAG | Paint.DITHER_FLAG);
         }
         coordinateTextPaint.setStyle(Paint.Style.FILL);
-        coordinateTextPaint.setTextSize(coordinateTextSize);
-        coordinateTextPaint.setColor(coordinateTextColor);
+        coordinateTextPaint.setTextSize(axisTextSize);
+        coordinateTextPaint.setColor(axisTextColor);
 
         coordinateLinePaint.setStyle(Paint.Style.STROKE);
-        coordinateLinePaint.setColor(coordinateLineColor);
-        coordinateLinePaint.setStrokeWidth(coordinateLineWidth);
+        coordinateLinePaint.setColor(axisLineColor);
+        coordinateLinePaint.setStrokeWidth(axisLineWidth);
         coordinateLinePaint.setPathEffect(new DashPathEffect(new float[]{5, 5}, 0));
     }
 
     public LineChartConfig coordinateLineWidth(int coordinateLineWidth) {
-        this.coordinateLineWidth = coordinateLineWidth;
+        this.axisLineWidth = coordinateLineWidth;
         initPaint();
         return setReapply(true);
     }
 
     public LineChartConfig coordinateLineColor(int coordinateLineColor) {
-        this.coordinateLineColor = coordinateLineColor;
+        this.axisLineColor = coordinateLineColor;
         initPaint();
         return setReapply(true);
     }
 
     public LineChartConfig coordinateTextSize(int coordinateTextSize) {
-        this.coordinateTextSize = coordinateTextSize;
+        this.axisTextSize = coordinateTextSize;
         initPaint();
         return setReapply(true);
     }
 
     public LineChartConfig coordinateTextColor(int coordinateTextColor) {
-        this.coordinateTextColor = coordinateTextColor;
+        this.axisTextColor = coordinateTextColor;
         initPaint();
         return setReapply(true);
     }
@@ -239,10 +240,10 @@ public class LineChartConfig {
             mChatHelper.reset();
             xCoordinateDescForStart(config.startXcoordinateDesc)
                     .xCoordinateDescForEnd(config.endXcoordinateDesc)
-                    .coordinateLineColor(config.coordinateLineColor)
-                    .coordinateLineWidth(config.coordinateLineWidth)
-                    .coordinateTextColor(config.coordinateTextColor)
-                    .coordinateTextSize(config.coordinateTextSize)
+                    .coordinateLineColor(config.axisLineColor)
+                    .coordinateLineWidth(config.axisLineWidth)
+                    .coordinateTextColor(config.axisTextColor)
+                    .coordinateTextSize(config.axisTextSize)
                     .elementPadding(config.elementPadding)
                     .coordinateAccuracyLevel(config.yCoordinateAccuracyLevel)
                     .animationDuration(config.duration)
@@ -290,7 +291,7 @@ public class LineChartConfig {
 
         LastAddedInfo mLastAddedInfo;
         List<String> mYCoordinateDesc;
-        List<Double> mYCoordinateValue;
+        List<Pair<Double, Double>> mYCoordinateValue;
         Paint textPaint;
         Rect textBounds;
         RectF lineBounds;
@@ -385,13 +386,18 @@ public class LineChartConfig {
                 Log.i(TAG, "min: " + tMinValue + "  max:  " + tMaxValue);
 
                 double freq = (tMaxValue - tMinValue) / (yCoordinateAccuracyLevel - 1);
+                double curValue = 0;
+                double lastValue = 0;
                 for (int i = 0; i < yCoordinateAccuracyLevel; i++) {
-                    double curValue = tMinValue + freq * i;
+                    curValue = tMinValue + freq * i;
                     String desc = sFormateRate.format(curValue);
                     desc = (curValue < 0 ? "-" : "+") + desc;
                     desc = needFormated ? String.format(Locale.getDefault(), formated, desc) : desc;
                     mYCoordinateDesc.add(desc);
-                    mYCoordinateValue.add(curValue);
+                    if (i > 0) {
+                        mYCoordinateValue.add(Pair.create(lastValue, curValue));
+                    }
+                    lastValue = curValue;
                 }
             }
 
@@ -400,7 +406,7 @@ public class LineChartConfig {
 
         Rect getCoordinateTextSize(String text) {
             text = TextUtils.isEmpty(text) ? MEASURE_TEXT : text;
-            textPaint.setTextSize(coordinateTextSize);
+            textPaint.setTextSize(axisTextSize);
             textPaint.getTextBounds(text, 0, text.length(), textBounds);
             return textBounds;
         }

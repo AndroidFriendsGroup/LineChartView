@@ -5,6 +5,7 @@ import android.graphics.Path;
 import android.graphics.Rect;
 import android.graphics.RectF;
 import android.util.Log;
+import android.util.Pair;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -99,7 +100,7 @@ final class InternalChartInfo {
         float startX = lineBounds.left + textBounds.width();
         final int size = chatConfig.mChatHelper.xCoordinateLength;
 
-        final float yFreq = lineBounds.height() / chatConfig.yCoordinateAccuracyLevel;
+        final float yFreq = lineBounds.height() / (chatConfig.yCoordinateAccuracyLevel - 1);
         final float contentHeight = lineBounds.height() - (textBounds.height() >> 1);
 
         float xFreq = xCoorWidth / size;
@@ -125,20 +126,10 @@ final class InternalChartInfo {
         if (config == null || ToolUtil.isListEmpty(config.mChatHelper.mYCoordinateValue)) {
             return 1;
         }
-        final int tSize = config.mChatHelper.mYCoordinateValue.size()-1;
+        final int tSize = config.mChatHelper.mYCoordinateValue.size();
         for (int i = 0; i < tSize; i++) {
-            double firstValue = config.mChatHelper.mYCoordinateValue.get(i);
-            double secondValue = config.mChatHelper.mYCoordinateValue.get(i + 1);
-            if (value>=firstValue&&value<=secondValue){
-                return tSize-i;
-            }
-           /* if (value == firstValue) {
-                return tSize - i;
-            } else if (value == secondValue) {
-                return tSize - i ;
-            } else if (value > firstValue && value < secondValue) {
-                return tSize - i;
-            }*/
+            Pair<Double, Double> element = config.mChatHelper.mYCoordinateValue.get(i);
+            if (value >= element.first && value <= element.second) return tSize - i;
         }
         return 1;
     }
