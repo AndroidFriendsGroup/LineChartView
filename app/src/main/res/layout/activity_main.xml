@@ -38,7 +38,7 @@
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
-            <razerdp.com.widget.linechat.LineChatView
+            <razerdp.com.widget.linechart.LineChartView
                 android:id="@+id/testView"
                 android:layout_width="match_parent"
                 android:layout_height="300dp"

@@ -39,8 +39,8 @@ dependencies {
 publish {
     userOrg = 'razerdp'
     groupId = 'com.github.AndroidFriendsGroup'
-    artifactId = 'LineChatView'
-    publishVersion = '1.0.2'
+    artifactId = 'LineChartView'
+    publishVersion = '1.0.3-alpha'
     desc = 'a simple and useful linechat view'
-    website = 'https://github.com/AndroidFriendsGroup/LineChatView'
+    website = 'https://github.com/AndroidFriendsGroup/LineChartView'
 }

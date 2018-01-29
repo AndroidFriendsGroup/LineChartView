@@ -1,4 +1,4 @@
-package razerdp.com.widget.linechat;
+package razerdp.com.widget.linechart;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
@@ -26,7 +26,7 @@ import razerdp.com.widget.util.ToolUtil;
 /**
  * Created by 大灯泡 on 2018/1/11.
  */
-public class LineChatView extends View {
+public class LineChartView extends View {
     private static final String TAG = "LineChatView";
 
     private static final boolean DEBUG = false;
@@ -37,7 +37,7 @@ public class LineChatView extends View {
     }
 
     private Mode mCurMode = Mode.DRAW;
-    private LineChatConfig mConfig;
+    private LineChartConfig mConfig;
     private RectF mDrawRect;
     private Paint touchGuideLinePaint;
     private Paint touchGuidePointPaint;
@@ -63,26 +63,26 @@ public class LineChatView extends View {
     Paint curPointP;
     Paint afterPointP;
 
-    public LineChatView(Context context) {
+    public LineChartView(Context context) {
         this(context, null);
     }
 
-    public LineChatView(Context context, @Nullable AttributeSet attrs) {
+    public LineChartView(Context context, @Nullable AttributeSet attrs) {
         this(context, attrs, 0);
     }
 
-    public LineChatView(Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
+    public LineChartView(Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
         init();
     }
 
     private void init() {
-        if (mConfig == null) mConfig = new LineChatConfig();
+        if (mConfig == null) mConfig = new LineChartConfig();
         mDrawRect = new RectF();
         mPathMeasure = new PathMeasure();
     }
 
-    void applyConfigInternal(LineChatConfig config) {
+    void applyConfigInternal(LineChartConfig config) {
         if (config == null) {
             throw new NullPointerException("config为空");
         }
@@ -103,7 +103,7 @@ public class LineChatView extends View {
         if (mConfig.reapply) mConfig.setReapply(false);
     }
 
-    public LineChatView applyConfig(LineChatConfig config) {
+    public LineChartView applyConfig(LineChartConfig config) {
         if (config == null) return this;
         applyConfigInternal(config);
         return this;
@@ -180,7 +180,7 @@ public class LineChatView extends View {
     }
 
     private void drawLineChat(Canvas canvas, boolean drawCache) {
-        List<InternalChatInfo> chatLineLists = mConfig.mChatHelper.getChatLists();
+        List<InternalChartInfo> chatLineLists = mConfig.mChatHelper.getChatLists();
         if (ToolUtil.isListEmpty(chatLineLists)) return;
         Rect textBounds = mConfig.mChatHelper.getCoordinateTextSize(null);
 
@@ -189,7 +189,7 @@ public class LineChatView extends View {
         final int size = mConfig.mChatHelper.xCoordinateLength;
         final float contentHeight = mDrawRect.height() - textBounds.height() - mConfig.elementPadding;
 
-        List<InternalChatInfo> list = mConfig.mChatHelper.getChatLists();
+        List<InternalChartInfo> list = mConfig.mChatHelper.getChatLists();
         if (ToolUtil.isListEmpty(list)) return;
 
         float startX = 0;
@@ -198,11 +198,11 @@ public class LineChatView extends View {
             canvas.drawBitmap(mDrawBitmap, 0, 0, null);
         } else {
             for (int i = 0; i < size - 1; i++) {
-                for (InternalChatInfo info : list) {
+                for (InternalChartInfo info : list) {
                     if (startX == 0) startX = info.startX;
                     Path p = info.linePath;
-                    LineChatInfoWrapper curInfoWrapper = info.getInfo(i);
-                    LineChatInfoWrapper nextInfoWrapper = info.getInfo(i + 1);
+                    LineChatrInfoWrapper curInfoWrapper = info.getInfo(i);
+                    LineChatrInfoWrapper nextInfoWrapper = info.getInfo(i + 1);
 
                     if (curInfoWrapper != null && nextInfoWrapper != null) {
                         //前控制点
@@ -256,11 +256,11 @@ public class LineChatView extends View {
             //手势
             // FIXME: 2018/1/23 因为touch位置跟数据位置不一致，导致可能发生的触摸位置跟显示的位置不一致的问题
             int index = (int) ((lastTouchX - startX) / xFreq);
-            for (InternalChatInfo info : list) {
+            for (InternalChartInfo info : list) {
                 if (startX == 0) startX = info.startX;
-                LineChatInfoWrapper curInfoWrapper = info.getInfo(index);
+                LineChatrInfoWrapper curInfoWrapper = info.getInfo(index);
                 if (curInfoWrapper != null) {
-                    OnLineChatSelectedListener listener = mConfig.mChatSelectedListenerHashMap.get(info.lineTag);
+                    OnLineChartSelectedListener listener = mConfig.mChatSelectedListenerHashMap.get(info.lineTag);
                     if (listener != null) {
                         listener.onSelected(lastEvent, info.lineTag, curInfoWrapper.mInfo);
                     }

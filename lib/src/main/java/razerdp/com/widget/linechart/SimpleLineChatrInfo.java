@@ -1,4 +1,4 @@
-package razerdp.com.widget.linechat;
+package razerdp.com.widget.linechart;
 
 import android.graphics.Color;
 
@@ -7,7 +7,7 @@ import java.io.Serializable;
 /**
  * Created by 大灯泡 on 2018/1/11.
  */
-public class SimpleLineChatInfo implements ILineChatInfo, Serializable {
+public class SimpleLineChatrInfo implements ILineChatrInfo, Serializable {
     private int chatLineWidth = 4;
     private int chatLineColor = Color.parseColor("#ff7113");
     private String desc;
@@ -16,40 +16,40 @@ public class SimpleLineChatInfo implements ILineChatInfo, Serializable {
     private int hightLightRadius = 5;
     private int highLightColor = Color.parseColor("#49d1fe");
 
-    public SimpleLineChatInfo() {
+    public SimpleLineChatrInfo() {
     }
 
-    public SimpleLineChatInfo setChatLineWidth(int chatLineWidth) {
+    public SimpleLineChatrInfo setChatLineWidth(int chatLineWidth) {
         this.chatLineWidth = chatLineWidth;
         return this;
     }
 
-    public SimpleLineChatInfo setChatLineColor(int chatLineColor) {
+    public SimpleLineChatrInfo setChatLineColor(int chatLineColor) {
         this.chatLineColor = chatLineColor;
         return this;
     }
 
-    public SimpleLineChatInfo setDesc(String desc) {
+    public SimpleLineChatrInfo setDesc(String desc) {
         this.desc = desc;
         return this;
     }
 
-    public SimpleLineChatInfo setValue(double value) {
+    public SimpleLineChatrInfo setValue(double value) {
         this.value = value;
         return this;
     }
 
-    public SimpleLineChatInfo setHightLight(boolean hightLight) {
+    public SimpleLineChatrInfo setHightLight(boolean hightLight) {
         isHightLight = hightLight;
         return this;
     }
 
-    public SimpleLineChatInfo setHightLightRadius(int hightLightRadius) {
+    public SimpleLineChatrInfo setHightLightRadius(int hightLightRadius) {
         this.hightLightRadius = hightLightRadius;
         return this;
     }
 
-    public SimpleLineChatInfo setHighLightColor(int highLightColor) {
+    public SimpleLineChatrInfo setHighLightColor(int highLightColor) {
         this.highLightColor = highLightColor;
         return this;
     }

@@ -1,4 +1,4 @@
-package razerdp.com.widget.linechat;
+package razerdp.com.widget.linechart;
 
 import android.graphics.Paint;
 import android.graphics.Path;
@@ -14,10 +14,10 @@ import razerdp.com.widget.util.ToolUtil;
 /**
  * Created by 大灯泡 on 2018/1/11.
  */
-final class InternalChatInfo {
+final class InternalChartInfo {
     final String lineTag;
 
-    List<LineChatInfoWrapper> mInfos;
+    List<LineChatrInfoWrapper> mInfos;
     Paint linePaint;
     Paint hightLightCirclePaint;
     Path linePath;
@@ -25,11 +25,11 @@ final class InternalChatInfo {
     float startX;
     float xFreq;
 
-    public InternalChatInfo(String lineTag) {
+    public InternalChartInfo(String lineTag) {
         this(lineTag, null);
     }
 
-    public InternalChatInfo(String lineTag, ILineChatInfo info) {
+    public InternalChartInfo(String lineTag, ILineChatrInfo info) {
         this.lineTag = lineTag;
         if (mInfos == null) {
             mInfos = new ArrayList<>();
@@ -38,7 +38,7 @@ final class InternalChatInfo {
         initPaint(info);
     }
 
-    private void initPaint(ILineChatInfo info) {
+    private void initPaint(ILineChatrInfo info) {
         if (info == null) return;
         if (linePaint == null) {
             linePaint = new Paint(Paint.ANTI_ALIAS_FLAG | Paint.DITHER_FLAG);
@@ -60,30 +60,30 @@ final class InternalChatInfo {
         }
     }
 
-    InternalChatInfo add(ILineChatInfo info) {
+    InternalChartInfo add(ILineChatrInfo info) {
         if (info == null) return this;
         if (mInfos == null) {
             mInfos = new ArrayList<>();
         }
-        mInfos.add(new LineChatInfoWrapper(info));
+        mInfos.add(new LineChatrInfoWrapper(info));
         initPaint(info);
         return this;
     }
 
-    List<? extends ILineChatInfo> getRawInfoList() {
-        List<ILineChatInfo> result = new ArrayList<>();
-        for (LineChatInfoWrapper info : mInfos) {
+    List<? extends ILineChatrInfo> getRawInfoList() {
+        List<ILineChatrInfo> result = new ArrayList<>();
+        for (LineChatrInfoWrapper info : mInfos) {
             result.add(info.mInfo);
         }
         return result;
     }
 
-    LineChatInfoWrapper getInfo(int index) {
+    LineChatrInfoWrapper getInfo(int index) {
         if (index < 0 || index >= mInfos.size()) return null;
         return mInfos.get(index);
     }
 
-    InternalChatInfo calculatePosition(LineChatConfig chatConfig) {
+    InternalChartInfo calculatePosition(LineChartConfig chatConfig) {
 //        double yAccuracy = (chatConfig.mChatHelper.maxValue - chatConfig.mChatHelper.minValue) / 5;
         double yAccuracy = 0;
 
@@ -108,7 +108,7 @@ final class InternalChatInfo {
         this.xFreq = xFreq;
 
         for (int i = 0; i < mInfos.size(); i++) {
-            LineChatInfoWrapper info = mInfos.get(i);
+            LineChatrInfoWrapper info = mInfos.get(i);
             double yPercent = 1 - (Math.abs(info.mInfo.getValue()) / tMax);
             int y = findIndex(chatConfig, info.mInfo.getValue());
             Log.i("percent", "perycent: " + yPercent + "   value  >>  " + info.mInfo.getValue());
@@ -121,7 +121,7 @@ final class InternalChatInfo {
         return mInfos.size();
     }
 
-    int findIndex(LineChatConfig config, double value) {
+    int findIndex(LineChartConfig config, double value) {
         if (config == null || ToolUtil.isListEmpty(config.mChatHelper.mYCoordinateValue)) {
             return 1;
         }

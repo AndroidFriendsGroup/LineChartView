@@ -12,15 +12,15 @@ import java.util.List;
 import java.util.Random;
 
 import razerdp.com.linechatview.R;
-import razerdp.com.widget.linechat.LineChatConfig;
-import razerdp.com.widget.linechat.LineChatPrepareConfig;
-import razerdp.com.widget.linechat.LineChatView;
-import razerdp.com.widget.linechat.OnLineChatSelectedListener;
-import razerdp.com.widget.linechat.SimpleLineChatInfo;
+import razerdp.com.widget.linechart.LineChartConfig;
+import razerdp.com.widget.linechart.LineChatPrepareConfig;
+import razerdp.com.widget.linechart.LineChartView;
+import razerdp.com.widget.linechart.OnLineChartSelectedListener;
+import razerdp.com.widget.linechart.SimpleLineChatrInfo;
 
 public class MainActivity extends AppCompatActivity {
 
-    private LineChatView testView;
+    private LineChartView testView;
     TextView desc;
     TextView desc2;
 
@@ -32,7 +32,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void initView() {
-        testView = (LineChatView) findViewById(R.id.testView);
+        testView = (LineChartView) findViewById(R.id.testView);
         desc = findViewById(R.id.tv_desc);
         desc2 = findViewById(R.id.tv_desc2);
 
@@ -49,22 +49,22 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void applyConfig(Random random) {
-        LineChatConfig config = new LineChatConfig();
+        LineChartConfig config = new LineChartConfig();
         config.addDatas("line1", createData(random.nextDouble(), random, 20, Color.parseColor("#FD9726")))
 //                .addDatas("line2", createData(random.nextDouble(), random, 30, Color.parseColor("#41A1EA")))
                 .xCoordinateDescForStart("2017-06-29")
                 .xCoordinateDescForEnd("2018-01-12")
                 .enableLineTouchPoint("line1", "line2")
-                .addChatSelectedListener("line1", new OnLineChatSelectedListener<SimpleLineChatInfo>() {
+                .addChatSelectedListener("line1", new OnLineChartSelectedListener<SimpleLineChatrInfo>() {
                     @Override
-                    public void onSelected(MotionEvent event, String lineTag, SimpleLineChatInfo data) {
+                    public void onSelected(MotionEvent event, String lineTag, SimpleLineChatrInfo data) {
                         desc.setText("line >>  " + lineTag + "  value  >>  " + data.getValue());
 
                     }
                 })
-                .addChatSelectedListener("line2", new OnLineChatSelectedListener<SimpleLineChatInfo>() {
+                .addChatSelectedListener("line2", new OnLineChartSelectedListener<SimpleLineChatrInfo>() {
                     @Override
-                    public void onSelected(MotionEvent event, String lineTag, SimpleLineChatInfo data) {
+                    public void onSelected(MotionEvent event, String lineTag, SimpleLineChatrInfo data) {
                         desc2.setText("line2 >>  " + lineTag + "  value  >>  " + data.getValue());
 
                     }
@@ -72,10 +72,10 @@ public class MainActivity extends AppCompatActivity {
         testView.applyConfig(config).start(new LineChatPrepareConfig().setYcoordinateFormated("%s%%"));
     }
 
-    private List<SimpleLineChatInfo> createData(double start, Random random, int count, int color) {
-        List<SimpleLineChatInfo> result = new ArrayList<>();
+    private List<SimpleLineChatrInfo> createData(double start, Random random, int count, int color) {
+        List<SimpleLineChatrInfo> result = new ArrayList<>();
       /*  for (int i = 0; i < count; i++) {
-            SimpleLineChatInfo info = new SimpleLineChatInfo();
+            SimpleLineChatrInfo info = new SimpleLineChatrInfo();
             info.setChatLineColor(color);
             float r = random.nextFloat();
             info.setValue(start + r / 10).setDesc(Double.toString(info.getValue()));
@@ -101,8 +101,8 @@ public class MainActivity extends AppCompatActivity {
         return result;
     }
 
-    private SimpleLineChatInfo createInfo(double value, int color) {
-        SimpleLineChatInfo info = new SimpleLineChatInfo();
+    private SimpleLineChatrInfo createInfo(double value, int color) {
+        SimpleLineChatrInfo info = new SimpleLineChatrInfo();
         info.setChatLineColor(color);
         info.setValue(value).setDesc(Double.toString(info.getValue()));
         return info;

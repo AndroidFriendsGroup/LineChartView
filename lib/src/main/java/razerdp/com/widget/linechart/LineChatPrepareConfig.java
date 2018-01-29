@@ -1,4 +1,4 @@
-package razerdp.com.widget.linechat;
+package razerdp.com.widget.linechart;
 
 import android.graphics.RectF;
 

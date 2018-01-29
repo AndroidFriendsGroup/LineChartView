@@ -1,20 +1,20 @@
-package razerdp.com.widget.linechat;
+package razerdp.com.widget.linechart;
 
 import android.graphics.PointF;
 
 /**
  * Created by 大灯泡 on 2018/1/12.
  */
-class LineChatInfoWrapper {
-    ILineChatInfo mInfo;
+class LineChatrInfoWrapper {
+    ILineChatrInfo mInfo;
     PointF drawPoint;
 
-    public LineChatInfoWrapper(ILineChatInfo info) {
+    public LineChatrInfoWrapper(ILineChatrInfo info) {
         mInfo = info;
         drawPoint = new PointF(-1, -1);
     }
 
-    public void setInfo(ILineChatInfo info) {
+    public void setInfo(ILineChatrInfo info) {
         mInfo = info;
     }
 

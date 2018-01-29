@@ -1,4 +1,4 @@
-package razerdp.com.widget.linechat;
+package razerdp.com.widget.linechart;
 
 import android.graphics.Color;
 import android.graphics.DashPathEffect;
@@ -27,8 +27,8 @@ import razerdp.com.widget.util.ToolUtil;
  * <p>
  * config
  */
-public class LineChatConfig {
-    private static final String TAG = "LineChatConfig";
+public class LineChartConfig {
+    private static final String TAG = "LineChartConfig";
 
     private static final String MEASURE_TEXT = "+99.99%";
 
@@ -72,21 +72,21 @@ public class LineChatConfig {
     int touchGuidePointRadius = DEFAULT_TOUCH_GUIDE_POINT_RADIUS;
     int touchGuidePointColor = DEFAULT_TOUCH_GUIDE_POINT_COLOR;
 
-    HashMap<String, OnLineChatSelectedListener> mChatSelectedListenerHashMap;
+    HashMap<String, OnLineChartSelectedListener> mChatSelectedListenerHashMap;
     List<String> highLineTag;
 
     //-----------------------------------------value config end-----------------------------------------
 
 
     LineChatHelper mChatHelper;
-    LinkedHashMap<String, InternalChatInfo> mChatMap;
+    LinkedHashMap<String, InternalChartInfo> mChatMap;
     volatile boolean reapply = true;
     boolean needPrepare = true;//如果重新设置过config，则需要重新prepare
 
     Paint coordinateTextPaint;
     Paint coordinateLinePaint;
 
-    public LineChatConfig() {
+    public LineChartConfig() {
         mChatHelper = new LineChatHelper();
         mChatMap = new LinkedHashMap<>();
         mChatSelectedListenerHashMap = new HashMap<>();
@@ -112,108 +112,108 @@ public class LineChatConfig {
         coordinateLinePaint.setPathEffect(new DashPathEffect(new float[]{5, 5}, 0));
     }
 
-    public LineChatConfig coordinateLineWidth(int coordinateLineWidth) {
+    public LineChartConfig coordinateLineWidth(int coordinateLineWidth) {
         this.coordinateLineWidth = coordinateLineWidth;
         initPaint();
         return setReapply(true);
     }
 
-    public LineChatConfig coordinateLineColor(int coordinateLineColor) {
+    public LineChartConfig coordinateLineColor(int coordinateLineColor) {
         this.coordinateLineColor = coordinateLineColor;
         initPaint();
         return setReapply(true);
     }
 
-    public LineChatConfig coordinateTextSize(int coordinateTextSize) {
+    public LineChartConfig coordinateTextSize(int coordinateTextSize) {
         this.coordinateTextSize = coordinateTextSize;
         initPaint();
         return setReapply(true);
     }
 
-    public LineChatConfig coordinateTextColor(int coordinateTextColor) {
+    public LineChartConfig coordinateTextColor(int coordinateTextColor) {
         this.coordinateTextColor = coordinateTextColor;
         initPaint();
         return setReapply(true);
     }
 
-    public LineChatConfig addDatas(String lineTag, List<? extends ILineChatInfo> infos) {
+    public LineChartConfig addDatas(String lineTag, List<? extends ILineChatrInfo> infos) {
         if (ToolUtil.isListEmpty(infos)) return this;
-        for (ILineChatInfo info : infos) {
+        for (ILineChatrInfo info : infos) {
             addData(lineTag, info);
         }
         return setReapply(true);
     }
 
-    public LineChatConfig addData(String lineTag, ILineChatInfo info) {
+    public LineChartConfig addData(String lineTag, ILineChatrInfo info) {
         return mChatHelper.addData(lineTag, info);
     }
 
-    public LineChatConfig coordinateAccuracyLevel(int yCoordinateAccuracyLevel) {
+    public LineChartConfig coordinateAccuracyLevel(int yCoordinateAccuracyLevel) {
         this.yCoordinateAccuracyLevel = yCoordinateAccuracyLevel;
         return setReapply(true);
     }
 
-    public LineChatConfig xCoordinateDescForStart(String startXcoordinateDesc) {
+    public LineChartConfig xCoordinateDescForStart(String startXcoordinateDesc) {
         this.startXcoordinateDesc = startXcoordinateDesc;
         return setReapply(true);
     }
 
-    public LineChatConfig xCoordinateDescForEnd(String endXcoordinateDesc) {
+    public LineChartConfig xCoordinateDescForEnd(String endXcoordinateDesc) {
         this.endXcoordinateDesc = endXcoordinateDesc;
         return setReapply(true);
     }
 
-    public LineChatConfig elementPadding(float elementPadding) {
+    public LineChartConfig elementPadding(float elementPadding) {
         this.elementPadding = elementPadding;
         return setReapply(true);
     }
 
-    public LineChatConfig animationDuration(long duration) {
+    public LineChartConfig animationDuration(long duration) {
         this.duration = duration;
         return setReapply(true);
     }
 
-    public LineChatConfig animationDraw(boolean animation) {
+    public LineChartConfig animationDraw(boolean animation) {
         this.animation = animation;
         return setReapply(true);
     }
 
-    public LineChatConfig touchGuideLineWidth(int touchGuideLineWidth) {
+    public LineChartConfig touchGuideLineWidth(int touchGuideLineWidth) {
         this.touchGuideLineWidth = touchGuideLineWidth;
         return setReapply(true);
     }
 
-    public LineChatConfig touchGuideLineColor(int touchGuidLineColor) {
+    public LineChartConfig touchGuideLineColor(int touchGuidLineColor) {
         this.touchGuideLineColor = touchGuidLineColor;
         return setReapply(true);
     }
 
-    public LineChatConfig touchGuidePointRadius(int touchGuidePointRadius) {
+    public LineChartConfig touchGuidePointRadius(int touchGuidePointRadius) {
         this.touchGuidePointRadius = touchGuidePointRadius;
         return setReapply(true);
     }
 
-    public LineChatConfig touchGuidePointColor(int touchGuidePointColor) {
+    public LineChartConfig touchGuidePointColor(int touchGuidePointColor) {
         this.touchGuidePointColor = touchGuidePointColor;
         return setReapply(true);
     }
 
-    public <T extends ILineChatInfo> LineChatConfig addChatSelectedListener(String lineTag, OnLineChatSelectedListener<T> chatSelectedListener) {
+    public <T extends ILineChatrInfo> LineChartConfig addChatSelectedListener(String lineTag, OnLineChartSelectedListener<T> chatSelectedListener) {
         mChatSelectedListenerHashMap.put(lineTag, chatSelectedListener);
         return setReapply(true);
     }
 
-    public LineChatConfig enableLineTouchPoint(String... lineTags) {
+    public LineChartConfig enableLineTouchPoint(String... lineTags) {
         if (lineTags == null) return this;
         Collections.addAll(highLineTag, lineTags);
         return setReapply(true);
     }
 
-    HashMap<String, InternalChatInfo> getChatMap() {
+    HashMap<String, InternalChartInfo> getChatMap() {
         return getChatMap(null);
     }
 
-    HashMap<String, InternalChatInfo> getChatMap(HashMap<String, InternalChatInfo> map) {
+    HashMap<String, InternalChartInfo> getChatMap(HashMap<String, InternalChartInfo> map) {
         if (map != null) {
             map.putAll(mChatMap);
             return map;
@@ -226,7 +226,7 @@ public class LineChatConfig {
         return mChatHelper.isReady;
     }
 
-    LineChatConfig setReapply(boolean reapply) {
+    LineChartConfig setReapply(boolean reapply) {
         this.reapply = reapply;
         if (reapply) {
             needPrepare = true;
@@ -234,7 +234,7 @@ public class LineChatConfig {
         return this;
     }
 
-    LineChatConfig setConfig(LineChatConfig config) {
+    LineChartConfig setConfig(LineChartConfig config) {
         if (config != null) {
             mChatHelper.reset();
             xCoordinateDescForStart(config.startXcoordinateDesc)
@@ -257,16 +257,16 @@ public class LineChatConfig {
     }
 
 
-    private void copyConfigArrays(LineChatConfig config) {
-        HashMap<String, InternalChatInfo> maps = new HashMap<>();
+    private void copyConfigArrays(LineChartConfig config) {
+        HashMap<String, InternalChartInfo> maps = new HashMap<>();
         config.getChatMap(maps);
         mChatMap.clear();
         Iterator iterator = maps.entrySet().iterator();
         while (iterator.hasNext()) {
-            Map.Entry<String, InternalChatInfo> entry = (Map.Entry<String, InternalChatInfo>) iterator.next();
+            Map.Entry<String, InternalChartInfo> entry = (Map.Entry<String, InternalChartInfo>) iterator.next();
             addDatas(entry.getKey(), entry.getValue().getRawInfoList());
         }
-        HashMap<String, OnLineChatSelectedListener> listenerMaps = new HashMap<>();
+        HashMap<String, OnLineChartSelectedListener> listenerMaps = new HashMap<>();
         if (!config.mChatSelectedListenerHashMap.isEmpty()) {
             listenerMaps.putAll(config.mChatSelectedListenerHashMap);
             mChatSelectedListenerHashMap.clear();
@@ -295,7 +295,7 @@ public class LineChatConfig {
         Rect textBounds;
         RectF lineBounds;
         LineChatPrepareConfig mPrepareConfig;
-        List<InternalChatInfo> mChatLists;
+        List<InternalChartInfo> mChatLists;
         int xCoordinateLength;
 
 
@@ -331,34 +331,34 @@ public class LineChatConfig {
             mLastAddedInfo = null;
         }
 
-        LineChatConfig addData(String lineTag, ILineChatInfo info) {
+        LineChartConfig addData(String lineTag, ILineChatrInfo info) {
             if (info == null) return setReapply(true);
             //减少每次add的时候都要去map那里寻找的操作
             if (mLastAddedInfo != null && mLastAddedInfo.equals(lineTag)) {
-                mLastAddedInfo.lastAddedInternalChatInfo.add(info);
-                xCoordinateLength = Math.max(xCoordinateLength, mLastAddedInfo.lastAddedInternalChatInfo.getRawInfoListSize());
+                mLastAddedInfo.mLastAddedInternalChartInfo.add(info);
+                xCoordinateLength = Math.max(xCoordinateLength, mLastAddedInfo.mLastAddedInternalChartInfo.getRawInfoListSize());
                 record(info);
-                return LineChatConfig.this;
+                return LineChartConfig.this;
             } else {
                 mLastAddedInfo = null;
             }
 
-            InternalChatInfo internalChatInfo = mChatMap.get(lineTag);
-            if (internalChatInfo == null) {
-                internalChatInfo = new InternalChatInfo(lineTag);
-                mChatMap.put(lineTag, internalChatInfo);
+            InternalChartInfo internalChartInfo = mChatMap.get(lineTag);
+            if (internalChartInfo == null) {
+                internalChartInfo = new InternalChartInfo(lineTag);
+                mChatMap.put(lineTag, internalChartInfo);
             }
-            internalChatInfo.add(info);
-            xCoordinateLength = Math.max(xCoordinateLength, internalChatInfo.getRawInfoListSize());
+            internalChartInfo.add(info);
+            xCoordinateLength = Math.max(xCoordinateLength, internalChartInfo.getRawInfoListSize());
 
             if (mLastAddedInfo == null) {
-                mLastAddedInfo = new LastAddedInfo(lineTag, internalChatInfo);
+                mLastAddedInfo = new LastAddedInfo(lineTag, internalChartInfo);
             }
             record(info);
             return setReapply(true);
         }
 
-        private void record(ILineChatInfo info) {
+        private void record(ILineChatrInfo info) {
             final double value = info.getValue();
             minValue = Math.min(value, minValue);
             maxValue = Math.max(value, maxValue);
@@ -405,13 +405,13 @@ public class LineChatConfig {
             return textBounds;
         }
 
-        List<InternalChatInfo> getChatLists() {
+        List<InternalChartInfo> getChatLists() {
             if (ToolUtil.isListEmpty(mChatLists)) {
                 Iterator iterator = mChatMap.entrySet().iterator();
                 while (iterator.hasNext()) {
-                    Map.Entry<String, InternalChatInfo> entry = (Map.Entry<String, InternalChatInfo>) iterator.next();
-                    InternalChatInfo info = entry.getValue();
-                    mChatLists.add(info.calculatePosition(LineChatConfig.this));
+                    Map.Entry<String, InternalChartInfo> entry = (Map.Entry<String, InternalChartInfo>) iterator.next();
+                    InternalChartInfo info = entry.getValue();
+                    mChatLists.add(info.calculatePosition(LineChartConfig.this));
                 }
             }
             return mChatLists;
@@ -449,15 +449,15 @@ public class LineChatConfig {
 
         class LastAddedInfo {
             String lastLineTag;
-            InternalChatInfo lastAddedInternalChatInfo;
+            InternalChartInfo mLastAddedInternalChartInfo;
 
-            public LastAddedInfo(String lastLineTag, InternalChatInfo lastAddedInternalChatInfos) {
+            public LastAddedInfo(String lastLineTag, InternalChartInfo lastAddedInternalChartInfos) {
                 this.lastLineTag = lastLineTag;
-                this.lastAddedInternalChatInfo = lastAddedInternalChatInfos;
+                this.mLastAddedInternalChartInfo = lastAddedInternalChartInfos;
             }
 
             boolean equals(String lineTag) {
-                return TextUtils.equals(lineTag, lastLineTag) && lastAddedInternalChatInfo != null;
+                return TextUtils.equals(lineTag, lastLineTag) && mLastAddedInternalChartInfo != null;
             }
         }
     }
