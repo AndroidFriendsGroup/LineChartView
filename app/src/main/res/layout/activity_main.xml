@@ -29,12 +29,23 @@
         android:textColor="@color/colorPrimary"
         />
 
-    <razerdp.com.widget.linechat.LineChatView
-        android:id="@+id/testView"
+    <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="300dp"
-        android:layout_marginTop="16dp"
-        android:padding="8dp"
-        />
+        android:layout_height="wrap_content">
 
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <razerdp.com.widget.linechat.LineChatView
+                android:id="@+id/testView"
+                android:layout_width="match_parent"
+                android:layout_height="300dp"
+                android:layout_marginTop="16dp"
+                android:background="#244050b5"
+                android:padding="8dp"
+                />
+        </LinearLayout>
+    </ScrollView>
 </LinearLayout>

@@ -74,7 +74,7 @@ public class MainActivity extends AppCompatActivity {
 
     private List<SimpleLineChatInfo> createData(double start, Random random, int count, int color) {
         List<SimpleLineChatInfo> result = new ArrayList<>();
-       /* for (int i = 0; i < count; i++) {
+      /*  for (int i = 0; i < count; i++) {
             SimpleLineChatInfo info = new SimpleLineChatInfo();
             info.setChatLineColor(color);
             float r = random.nextFloat();
@@ -96,7 +96,7 @@ public class MainActivity extends AppCompatActivity {
         result.add(createInfo(0.3, color));
         result.add(createInfo(0.5, color));
         result.add(createInfo(0.6, color));
-        result.add(createInfo(1.5, color));
+        result.add(createInfo(1.2, color));
 
         return result;
     }

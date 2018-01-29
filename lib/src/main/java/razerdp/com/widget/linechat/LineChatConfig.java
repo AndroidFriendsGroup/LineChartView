@@ -289,7 +289,8 @@ public class LineChatConfig {
         double minValue = Double.MAX_VALUE;
 
         LastAddedInfo mLastAddedInfo;
-        private List<String> mYCoordinateDesc;
+        List<String> mYCoordinateDesc;
+        List<Double> mYCoordinateValue;
         Paint textPaint;
         Rect textBounds;
         RectF lineBounds;
@@ -320,6 +321,12 @@ public class LineChatConfig {
                 mYCoordinateDesc.clear();
             } else {
                 mYCoordinateDesc = new ArrayList<>();
+            }
+
+            if (mYCoordinateValue != null) {
+                mYCoordinateValue.clear();
+            } else {
+                mYCoordinateValue = new ArrayList<>();
             }
             mLastAddedInfo = null;
         }
@@ -384,6 +391,7 @@ public class LineChatConfig {
                     desc = (curValue < 0 ? "-" : "+") + desc;
                     desc = needFormated ? String.format(Locale.getDefault(), formated, desc) : desc;
                     mYCoordinateDesc.add(desc);
+                    mYCoordinateValue.add(curValue);
                 }
             }
 
@@ -426,7 +434,6 @@ public class LineChatConfig {
         private void calculateLineDrawBounds(RectF drawRectf) {
             if (lineBounds != null) lineBounds.setEmpty();
             float drawStartY = drawRectf.bottom - getCoordinateTextSize(null).height() - elementPadding;
-            float yFreq = (drawStartY - drawRectf.top) / yCoordinateAccuracyLevel;
             lineBounds.set(drawRectf.left, drawRectf.top, drawRectf.right, drawStartY);
         }
 

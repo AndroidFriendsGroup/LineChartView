@@ -150,7 +150,7 @@ public class LineChatView extends View {
 
         for (int i = 0; i < yCoordinateDesc.size(); i++) {
             String s = yCoordinateDesc.get(i);
-            float curY = drawStartY - mConfig.mChatHelper.lineBounds.height() * i / mConfig.yCoordinateAccuracyLevel;
+            float curY = drawStartY - (mConfig.mChatHelper.lineBounds.height() * i / mConfig.yCoordinateAccuracyLevel);
 
             canvas.drawText(s, drawStartX, curY, mConfig.coordinateTextPaint);
             //坐标轴在文字的中间
@@ -160,6 +160,7 @@ public class LineChatView extends View {
                     curY - (textBounds.height() >> 1),
                     mConfig.coordinateLinePaint);
         }
+        canvas.drawRect(mConfig.mChatHelper.lineBounds, mConfig.coordinateLinePaint);
 
         if (!TextUtils.isEmpty(mConfig.startXcoordinateDesc)) {
             //横坐标文字
@@ -346,6 +347,7 @@ public class LineChatView extends View {
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
+        if (isInAnimating) return super.onTouchEvent(event);
         lastEvent = event;
         lastTouchX = event.getX();
         lastTouchY = event.getY();

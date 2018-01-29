@@ -9,6 +9,8 @@ import android.util.Log;
 import java.util.ArrayList;
 import java.util.List;
 
+import razerdp.com.widget.util.ToolUtil;
+
 /**
  * Created by 大灯泡 on 2018/1/11.
  */
@@ -108,13 +110,36 @@ final class InternalChatInfo {
         for (int i = 0; i < mInfos.size(); i++) {
             LineChatInfoWrapper info = mInfos.get(i);
             double yPercent = 1 - (Math.abs(info.mInfo.getValue()) / tMax);
+            int y = findIndex(chatConfig, info.mInfo.getValue());
             Log.i("percent", "perycent: " + yPercent + "   value  >>  " + info.mInfo.getValue());
-            info.setPosition(startX + xFreq * i, (float) (lineBounds.top + (contentHeight * yPercent)));
+            info.setPosition(startX + xFreq * i, (float) (yFreq * y + lineBounds.top + (yFreq * yPercent)));
         }
         return this;
     }
 
     int getRawInfoListSize() {
         return mInfos.size();
+    }
+
+    int findIndex(LineChatConfig config, double value) {
+        if (config == null || ToolUtil.isListEmpty(config.mChatHelper.mYCoordinateValue)) {
+            return 1;
+        }
+        final int tSize = config.mChatHelper.mYCoordinateValue.size()-1;
+        for (int i = 0; i < tSize; i++) {
+            double firstValue = config.mChatHelper.mYCoordinateValue.get(i);
+            double secondValue = config.mChatHelper.mYCoordinateValue.get(i + 1);
+            if (value>=firstValue&&value<=secondValue){
+                return tSize-i;
+            }
+           /* if (value == firstValue) {
+                return tSize - i;
+            } else if (value == secondValue) {
+                return tSize - i ;
+            } else if (value > firstValue && value < secondValue) {
+                return tSize - i;
+            }*/
+        }
+        return 1;
     }
 }
