@@ -5,9 +5,9 @@ package razerdp.com.widget.linechart;
  */
 public interface ILineChatrInfo {
 
-    int getChatLineWidth();
+    int getChartLineWidth();
 
-    int getChatLineColor();
+    int getChatrLineColor();
 
     String getDesc();
 

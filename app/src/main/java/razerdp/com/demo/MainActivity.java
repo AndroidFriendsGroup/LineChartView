@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.Random;
 
 import razerdp.com.linechatview.R;
-import razerdp.com.widget.linechart.LineChartConfig;
+import razerdp.com.widget.linechart.LineChartConfig2;
 import razerdp.com.widget.linechart.LineChatPrepareConfig;
 import razerdp.com.widget.linechart.LineChartView;
 import razerdp.com.widget.linechart.OnLineChartSelectedListener;
@@ -49,7 +49,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void applyConfig(Random random) {
-        LineChartConfig config = new LineChartConfig();
+        LineChartConfig2 config = new LineChartConfig2();
         config.addDatas("line1", createData(random.nextDouble(), random, 20, Color.parseColor("#FD9726")))
                 .addDatas("line2", createData(random.nextDouble(), random, 30, Color.parseColor("#41A1EA")))
                 .xCoordinateDescForStart("2017-06-29")

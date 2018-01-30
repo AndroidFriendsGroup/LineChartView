@@ -55,12 +55,12 @@ public class SimpleLineChatrInfo implements ILineChatrInfo, Serializable {
     }
 
     @Override
-    public int getChatLineWidth() {
+    public int getChartLineWidth() {
         return chatLineWidth;
     }
 
     @Override
-    public int getChatLineColor() {
+    public int getChatrLineColor() {
         return chatLineColor;
     }
 
