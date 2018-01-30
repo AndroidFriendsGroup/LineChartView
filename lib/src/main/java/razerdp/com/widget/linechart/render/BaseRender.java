@@ -34,4 +34,6 @@ public abstract class BaseRender {
 
     public abstract void onSizeChanged(int width, int height, int paddingLeft, int paddingTop, int paddingRight, int paddingBottom);
 
+    public abstract void reset();
+
 }

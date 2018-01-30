@@ -5,11 +5,11 @@ import android.graphics.Color;
 import android.graphics.DashPathEffect;
 import android.graphics.Paint;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import razerdp.com.widget.linechart.IChart;
 import razerdp.com.widget.linechart.axis.Axis;
-import razerdp.com.widget.linechart.axis.AxisDrawer;
 import razerdp.com.widget.util.ToolUtil;
 
 /**
@@ -28,8 +28,8 @@ class AxesRender extends BaseRender {
     int axisTextColor = DEFAULT_AXIS_TEXT_COLOR;
     int axisLabelPadding = DEFAULT_AXIS_LABEL_PADDING;
 
-    private List<AxisDrawer> mXAxes;
-    private List<AxisDrawer> mYAxes;
+    private List<Axis> mXAxes = new ArrayList<>();
+    private List<Axis> mYAxes = new ArrayList<>();
 
     private Paint linePaint;
     private Paint labelPaint;
@@ -62,7 +62,6 @@ class AxesRender extends BaseRender {
         labelPaint.setStyle(Paint.Style.FILL);
         labelPaint.setTextSize(ToolUtil.sp2px(chart.getViewContext(), axisTextSize));
         labelPaint.setColor(axisTextColor);
-
     }
 
     @Override
@@ -77,7 +76,7 @@ class AxesRender extends BaseRender {
         float xStartX = maxYAxesLabelWidth + axisLabelPadding;
         float xStartY = mChartManager.getDrawHeight() - axisLabelPadding;
         float lastX = xStartX;
-        for (AxisDrawer xAx : mXAxes) {
+        for (Axis xAx : mXAxes) {
             xAx.drawText(this, canvas, labelPaint, lastX, xStartY);
             lastX += xAxesMargin;
         }
@@ -86,7 +85,7 @@ class AxesRender extends BaseRender {
         float yStartX = mChartManager.getDrawBounds().left + axisLabelPadding;
         float yStartY = xStartY - maxXAxesLabelHeight - axisLabelPadding;
         float lastY = yStartY;
-        for (AxisDrawer yAx : mYAxes) {
+        for (Axis yAx : mYAxes) {
             yAx.drawText(this, canvas, labelPaint, yStartX, lastY);
             yAx.drawLine(this, canvas, labelPaint, yStartX, lastY, yStartX + mChartManager.getDrawWidth(), lastY);
             lastY -= yAxesMargin;
@@ -96,22 +95,16 @@ class AxesRender extends BaseRender {
 
     private void preMeasure() {
         if (hasPreMeasure) return;
-        for (AxisDrawer xAx : mXAxes) {
-            Axis axis = xAx.getAxis();
-            if (axis != null) {
-                String label = axis.getLabel();
-                maxXAxesLabelWidth = Math.max(maxXAxesLabelWidth, mChartManager.measureTextBounds(label, labelPaint).width());
-                maxXAxesLabelHeight = Math.max(maxXAxesLabelHeight, mChartManager.measureTextBounds(label, labelPaint).height());
-            }
+        for (Axis xAx : mXAxes) {
+            String label = xAx.getLabel();
+            maxXAxesLabelWidth = Math.max(maxXAxesLabelWidth, mChartManager.measureTextBounds(label, labelPaint).width());
+            maxXAxesLabelHeight = Math.max(maxXAxesLabelHeight, mChartManager.measureTextBounds(label, labelPaint).height());
         }
 
-        for (AxisDrawer yAx : mYAxes) {
-            Axis axis = yAx.getAxis();
-            if (axis != null) {
-                String label = axis.getLabel();
-                maxYAxesLabelWidth = Math.max(maxYAxesLabelWidth, mChartManager.measureTextBounds(label, labelPaint).width());
-                maxYAxesLabelHeight = Math.max(maxYAxesLabelHeight, mChartManager.measureTextBounds(label, labelPaint).height());
-            }
+        for (Axis yAx : mYAxes) {
+            String label = yAx.getLabel();
+            maxYAxesLabelWidth = Math.max(maxYAxesLabelWidth, mChartManager.measureTextBounds(label, labelPaint).width());
+            maxYAxesLabelHeight = Math.max(maxYAxesLabelHeight, mChartManager.measureTextBounds(label, labelPaint).height());
         }
 
         hasPreMeasure = true;
@@ -121,6 +114,26 @@ class AxesRender extends BaseRender {
     @Override
     public void onSizeChanged(int width, int height, int paddingLeft, int paddingTop, int paddingRight, int paddingBottom) {
 
+    }
+
+    public void addXAxesData(Axis axis) {
+        mXAxes.add(axis);
+    }
+
+    public void addYAxesData(Axis axis) {
+        mYAxes.add(axis);
+    }
+
+    @Override
+    public void reset() {
+        mXAxes.clear();
+        mYAxes.clear();
+        hasPreMeasure = false;
+
+        maxXAxesLabelWidth = 0;
+        maxXAxesLabelHeight = 0;
+        maxYAxesLabelWidth = 0;
+        maxYAxesLabelHeight = 0;
     }
 
 

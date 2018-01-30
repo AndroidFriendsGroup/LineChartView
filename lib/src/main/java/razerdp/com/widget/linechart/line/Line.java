@@ -78,6 +78,7 @@ public class Line {
         mPoints.add(new PointInfo(info));
     }
 
+
     @Override
     public boolean equals(Object obj) {
         if (!(obj instanceof Line)) {

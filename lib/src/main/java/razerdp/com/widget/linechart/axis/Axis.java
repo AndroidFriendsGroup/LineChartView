@@ -1,31 +1,26 @@
 package razerdp.com.widget.linechart.axis;
 
+import android.graphics.Canvas;
+import android.graphics.Paint;
+
+import razerdp.com.widget.linechart.render.BaseRender;
+
 /**
  * Created by 大灯泡 on 2018/1/30.
  */
 public class Axis {
 
-    private double value;
-    private String label;
+    private String label = "";
 
     public Axis() {
     }
 
-    public Axis(double value, String label) {
-        this.value = value;
+    public Axis(String label) {
         this.label = label;
-    }
-
-    public void setValue(double value) {
-        this.value = value;
     }
 
     public void setLabel(String label) {
         this.label = label;
-    }
-
-    public double getValue() {
-        return value;
     }
 
     public String getLabel() {
@@ -33,4 +28,13 @@ public class Axis {
     }
 
 
+    public void drawLine(BaseRender render, Canvas canvas, Paint paint, float startX, float startY, float endX, float endY) {
+        canvas.drawLine(startX, startY, endX, endY, paint);
+    }
+
+    public void drawText(BaseRender render, Canvas canvas, Paint paint, float x, float y) {
+        int height = render.getChartManager().measureTextBounds(label, paint).height();
+        y = y - (height >> 1);
+        canvas.drawText(label, x, y, paint);
+    }
 }
