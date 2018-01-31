@@ -6,6 +6,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.TextView;
 
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -62,6 +63,8 @@ public class MainActivity extends AppCompatActivity {
                 .addDatas("line1", createData(random.nextDouble(), random, 20, Color.parseColor("#FD9726")))
                 .addDatas("line2", createData(random.nextDouble(), random, 30, Color.parseColor("#41A1EA")))
                 .enableTouchLine("line1", "line2")
+                .axisStringFormat("%1$s%%")
+                .axisValueFormat(new DecimalFormat("0.00"))
                 .chartTouchListener("line1", new OnChartTouchListener() {
                     @Override
                     public void onChartSelected(String lineTag, int touchAction, ILineChatrInfo data) {
@@ -125,7 +128,6 @@ public class MainActivity extends AppCompatActivity {
                 return "Action_up";
             default:
                 return "Invalided";
-
         }
 
     }

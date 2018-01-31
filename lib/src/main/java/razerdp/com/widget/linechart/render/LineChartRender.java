@@ -1,10 +1,14 @@
 package razerdp.com.widget.linechart.render;
 
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
+import android.animation.ValueAnimator;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Path;
+import android.graphics.PathMeasure;
 import android.graphics.PorterDuff;
 import android.util.Log;
 import android.view.MotionEvent;
@@ -15,10 +19,10 @@ import java.util.List;
 
 import razerdp.com.widget.linechart.IChart;
 import razerdp.com.widget.linechart.callback.OnChartTouchListener;
-import razerdp.com.widget.linechart.model.ILineChatrInfo;
 import razerdp.com.widget.linechart.config.LineChartConfig;
 import razerdp.com.widget.linechart.line.Line;
 import razerdp.com.widget.linechart.line.PointInfo;
+import razerdp.com.widget.linechart.model.ILineChatrInfo;
 import razerdp.com.widget.linechart.utils.ToolUtil;
 
 /**
@@ -38,6 +42,13 @@ public class LineChartRender extends BaseRender implements ITouchRender {
     private Paint touchLinePaint;
     private Paint touchPointPaint;
 
+    private ValueAnimator mLineAnimator;
+    private boolean isAnimating;
+    private boolean hasAnimated;
+    private float animProcess;
+    private PathMeasure mPathMeasure = new PathMeasure();
+    private Path measurePath = new Path();
+
     public LineChartRender(IChart chart) {
         super(chart);
     }
@@ -55,6 +66,18 @@ public class LineChartRender extends BaseRender implements ITouchRender {
             drawCanvas.drawColor(Color.TRANSPARENT, PorterDuff.Mode.CLEAR);
         }
 
+        if (config.isAnimLine()) {
+            if (!isAnimating && !hasAnimated) {
+                hasAnimated = true;
+                mLineAnimator.start();
+            }
+        } else {
+            if (mLineAnimator != null) {
+                mLineAnimator.cancel();
+            }
+            isAnimating = false;
+            animProcess = 1f;
+        }
         //draw line
         if (config.isCubic()) {
             onDrawCubic(drawCanvas);
@@ -64,11 +87,7 @@ public class LineChartRender extends BaseRender implements ITouchRender {
         if (cachedBitmap != null) {
             canvas.drawBitmap(cachedBitmap, 0, 0, null);
         }
-        if (isOnTouch) {
-            if (!mChartManager.getChartLineDrawBounds().contains(lastTouchX, lastTouchY)) {
-                isOnTouch = false;
-                return;
-            }
+        if (isOnTouch && !isAnimating) {
             if (touchAction == OnChartTouchListener.ACTION_UP && lastTouchY == -1 && lastTouchX == -1) {
                 for (Line line : mLines) {
                     if (line.getChartTouchListener() != null) {
@@ -76,6 +95,11 @@ public class LineChartRender extends BaseRender implements ITouchRender {
                     }
                 }
                 touchAction = OnChartTouchListener.INVALIDED;
+                isOnTouch = false;
+                return;
+            }
+
+            if (!mChartManager.getChartLineDrawBounds().contains(lastTouchX, lastTouchY)) {
                 isOnTouch = false;
                 return;
             }
@@ -112,7 +136,15 @@ public class LineChartRender extends BaseRender implements ITouchRender {
             prePointY = y;
             pointIndex++;
         }
-        canvas.drawPath(path, paint);
+        if (isAnimating) {
+            measurePath.rewind();
+            mPathMeasure.nextContour();
+            mPathMeasure.setPath(path, false);
+            mPathMeasure.getSegment(0, animProcess * mPathMeasure.getLength(), measurePath, true);
+            canvas.drawPath(measurePath, paint);
+        } else {
+            canvas.drawPath(path, paint);
+        }
         path.rewind();
     }
 
@@ -141,91 +173,65 @@ public class LineChartRender extends BaseRender implements ITouchRender {
 
     }
 
-    /**
-     * 以下代码截取自hellocharts,感谢他的开源-V-
-     * https://github.com/lecho/hellocharts-android
-     *
-     * @param canvas
-     * @param line
-     */
     private void drawLineCubic(Canvas canvas, Line line) {
         List<PointInfo> points = line.getPoints();
         if (ToolUtil.isListEmpty(points)) return;
         final int pointSize = points.size();
-        float prePreviousPointX = Float.NaN;
-        float prePreviousPointY = Float.NaN;
-        float previousPointX = Float.NaN;
-        float previousPointY = Float.NaN;
-        float currentPointX = Float.NaN;
-        float currentPointY = Float.NaN;
-        float nextPointX = Float.NaN;
-        float nextPointY = Float.NaN;
+        //前1个点
+        PointInfo prePoint = null;
+        //当前点
+        PointInfo curPoint = null;
+        //下一个点
+        PointInfo nextPoint = null;
+
         Path path = line.getLinePath();
         Paint paint = line.getLinePaint();
 
         for (int i = 0; i < pointSize; i++) {
-            if (Float.isNaN(currentPointX)) {
-                PointInfo linePoint = points.get(i);
-                currentPointX = linePoint.getX();
-                currentPointY = linePoint.getY();
+            //当前点
+            if (curPoint == null) {
+                curPoint = points.get(i);
             }
 
-            if (Float.isNaN(previousPointX)) {
+            if (prePoint == null) {
                 if (i > 0) {
-                    PointInfo linePoint = points.get(i - 1);
-                    previousPointX = linePoint.getX();
-                    previousPointY = linePoint.getY();
+                    prePoint = points.get(i - 1);
                 } else {
-                    previousPointX = currentPointX;
-                    previousPointY = currentPointY;
+                    //第0个则指向当前点
+                    prePoint = curPoint;
                 }
             }
-
-            if (Float.isNaN(prePreviousPointX)) {
-                if (i > 1) {
-                    PointInfo linePoint = points.get(i - 2);
-                    prePreviousPointX = linePoint.getX();
-                    prePreviousPointY = linePoint.getY();
-                } else {
-                    prePreviousPointX = previousPointX;
-                    prePreviousPointY = previousPointY;
-                }
-            }
-
 
             if (i < pointSize - 1) {
-                PointInfo linePoint = points.get(i + 1);
-                nextPointX = linePoint.getX();
-                nextPointY = linePoint.getY();
+                nextPoint = points.get(i + 1);
             } else {
-                nextPointX = currentPointX;
-                nextPointY = currentPointY;
+                nextPoint = curPoint;
             }
 
             if (i == 0) {
-                path.moveTo(currentPointX, currentPointY);
+                path.moveTo(curPoint.getX(), curPoint.getY());
             } else {
-                final float firstDiffX = (currentPointX - prePreviousPointX);
-                final float firstDiffY = (currentPointY - prePreviousPointY);
-                final float secondDiffX = (nextPointX - previousPointX);
-                final float secondDiffY = (nextPointY - previousPointY);
-                final float firstControlPointX = previousPointX + (0.15f * firstDiffX);
-                final float firstControlPointY = previousPointY + (0.15f * firstDiffY);
-                final float secondControlPointX = currentPointX - (0.15f * secondDiffX);
-                final float secondControlPointY = currentPointY - (0.15f * secondDiffY);
+                final float firstControlPointX = (curPoint.getX() + nextPoint.getX()) / 2;
+                final float firstControlPointY = curPoint.getY();
+                final float secondControlPointX = (curPoint.getX() + nextPoint.getX()) / 2;
+                final float secondControlPointY = nextPoint.getY();
                 path.cubicTo(firstControlPointX, firstControlPointY, secondControlPointX, secondControlPointY,
-                        currentPointX, currentPointY);
+                        nextPoint.getX(), nextPoint.getY());
             }
 
-            prePreviousPointX = previousPointX;
-            prePreviousPointY = previousPointY;
-            previousPointX = currentPointX;
-            previousPointY = currentPointY;
-            currentPointX = nextPointX;
-            currentPointY = nextPointY;
+            prePoint = curPoint;
+            curPoint = nextPoint;
 
         }
-        canvas.drawPath(path, paint);
+        if (isAnimating) {
+            measurePath.rewind();
+            mPathMeasure.nextContour();
+            mPathMeasure.setPath(path, false);
+            mPathMeasure.getSegment(0, animProcess * mPathMeasure.getLength(), measurePath, true);
+            canvas.drawPath(measurePath, paint);
+        } else {
+            canvas.drawPath(path, paint);
+        }
         path.rewind();
 
     }
@@ -241,6 +247,12 @@ public class LineChartRender extends BaseRender implements ITouchRender {
     @Override
     public void reset() {
         mLines.clear();
+        mLineAnimator = null;
+        isAnimating = false;
+        hasAnimated = false;
+        animProcess = 0f;
+        mPathMeasure = new PathMeasure();
+        measurePath = new Path();
         releaseCachedDraw();
     }
 
@@ -251,6 +263,9 @@ public class LineChartRender extends BaseRender implements ITouchRender {
         if (config == null) {
             Log.e(TAG, "no config found,abort prepare");
             return;
+        }
+        if (config.isAnimLine()) {
+            prepareLineAnima();
         }
         HashMap<String, Line> linesMap = config.getLinesMap();
         mLines.addAll(linesMap.values());
@@ -301,6 +316,34 @@ public class LineChartRender extends BaseRender implements ITouchRender {
 
     }
 
+    private void prepareLineAnima() {
+        mLineAnimator = ValueAnimator.ofFloat(0f, 1f);
+        mLineAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+            @Override
+            public void onAnimationUpdate(ValueAnimator animation) {
+                animProcess = (float) animation.getAnimatedValue();
+                callInvalidate();
+            }
+        });
+        mLineAnimator.setDuration(chart.getConfig() == null ? 2000 : chart.getConfig().getAnimaLineDuration());
+        mLineAnimator.addListener(new AnimatorListenerAdapter() {
+            @Override
+            public void onAnimationStart(Animator animation) {
+                isAnimating = true;
+            }
+
+            @Override
+            public void onAnimationCancel(Animator animation) {
+                isAnimating = false;
+            }
+
+            @Override
+            public void onAnimationEnd(Animator animation) {
+                isAnimating = false;
+            }
+        });
+    }
+
 
     private void releaseCachedDraw() {
         if (cachedBitmap != null) {
@@ -317,6 +360,7 @@ public class LineChartRender extends BaseRender implements ITouchRender {
                 touchAction = OnChartTouchListener.ACTION_DOWN;
                 lastTouchX = event.getX();
                 lastTouchY = event.getY();
+                callInvalidate();
                 return true;
             case MotionEvent.ACTION_MOVE:
                 touchAction = OnChartTouchListener.ACTION_MOVE;
@@ -332,5 +376,13 @@ public class LineChartRender extends BaseRender implements ITouchRender {
                 return true;
         }
         return false;
+    }
+
+    @Override
+    public void forceAbortTouch() {
+        touchAction = OnChartTouchListener.ACTION_UP;
+        lastTouchX = -1;
+        lastTouchY = -1;
+        callInvalidate();
     }
 }

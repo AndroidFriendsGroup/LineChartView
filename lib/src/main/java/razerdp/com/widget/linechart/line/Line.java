@@ -24,8 +24,6 @@ public class Line {
     private int lineColor = DEFAULT_LINE_COLOR;
     private int pointRadius = DEFAULT_POINT_RADIUS;
 
-    private boolean cubic = true;
-
     private Paint linePaint;
     private Path linePath;
 
@@ -75,16 +73,13 @@ public class Line {
         this.pointRadius = pointRadius;
     }
 
-    public boolean isCubic() {
-        return cubic;
-    }
-
-    public void setCubic(boolean cubic) {
-        this.cubic = cubic;
-    }
-
     public void addInfo(ILineChatrInfo info) {
         mPoints.add(new PointInfo(info));
+        if (info != null) {
+            setLineWidth(info.getChartLineWidth());
+            setLineColor(info.getChatrLineColor());
+            setPointRadius(info.getHightLightRadius());
+        }
     }
 
     public List<PointInfo> getPoints() {

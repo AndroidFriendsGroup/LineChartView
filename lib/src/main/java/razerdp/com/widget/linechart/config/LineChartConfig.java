@@ -25,6 +25,9 @@ public class LineChartConfig {
     private static final int DEFAULT_TOUCH_POINT_RADIUS = 8;
     private static final int DEFAULT_TOUCH_POINT_COLOR = Color.BLACK;
 
+    private static final boolean DEFAULT_LINE_ANIM = true;
+    private static final long DEFAULT_LINE_ANIM_DURATION = 2500;
+
     //-----------------------------------------配置-----------------------------------------
     private int mAxesLabelMargin = DEFAULT_AXES_LABEL_MARGIN;
     private int mYAxesCount = DEFAULT_Y_AXES_COUNT;
@@ -34,6 +37,9 @@ public class LineChartConfig {
     private int touchLineColor = DEFAULT_TOUCH_LINE_COLOR;
     private int touchPointRadius = DEFAULT_TOUCH_POINT_RADIUS;
     private int touchPointColor = DEFAULT_TOUCH_POINT_COLOR;
+
+    private boolean animLine = DEFAULT_LINE_ANIM;
+    private long animaLineDuration = DEFAULT_LINE_ANIM_DURATION;
 
 
     //-----------------------------------------数据-----------------------------------------
@@ -97,10 +103,6 @@ public class LineChartConfig {
             line = new Line(lineTag);
             linesMap.put(line.getLineTag(), line);
         }
-        line.setCubic(isCubic);
-        line.setLineWidth(info.getChartLineWidth());
-        line.setLineColor(info.getChatrLineColor());
-        line.setPointRadius(info.getHightLightRadius());
         line.addInfo(info);
         return this;
     }
@@ -152,6 +154,21 @@ public class LineChartConfig {
 
     public LineChartConfig chartTouchListener(String lineTag, OnChartTouchListener mOnChartTouchListener) {
         mOnChartTouchListenerHashMap.put(lineTag, mOnChartTouchListener);
+        return this;
+    }
+
+
+    public LineChartConfig animLine(boolean animLine) {
+        return animLine(animLine, DEFAULT_LINE_ANIM_DURATION);
+    }
+
+    public LineChartConfig animLine(boolean animLine, long duration) {
+        this.animLine = animLine;
+        return animaLineDuration(duration);
+    }
+
+    public LineChartConfig animaLineDuration(long animaLineDuration) {
+        this.animaLineDuration = animaLineDuration;
         return this;
     }
 
@@ -214,5 +231,13 @@ public class LineChartConfig {
 
     public HashMap<String, OnChartTouchListener> getOnChartTouchListenerHashMap() {
         return mOnChartTouchListenerHashMap;
+    }
+
+    public boolean isAnimLine() {
+        return animLine;
+    }
+
+    public long getAnimaLineDuration() {
+        return animaLineDuration;
     }
 }

@@ -30,7 +30,7 @@ public class Axis {
 
     public void drawLine(BaseRender render, Canvas canvas, Paint paint, float startX, float startY, float endX, float endY) {
         int height = render.getChartManager().measureTextBounds(label, paint).height();
-        float y = startY - (height >> 1);
+        float y = startY - height ;
         canvas.drawLine(startX, y, endX, y, paint);
     }
 

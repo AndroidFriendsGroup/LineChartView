@@ -23,7 +23,7 @@ import razerdp.com.widget.linechart.utils.ToolUtil;
 /**
  * Created by 大灯泡 on 2018/1/30.
  */
-public class RenderManager {
+public class RenderManager implements ITouchRender {
     IChart chart;
     List<BaseRender> renderLists;
     private Handler mHandler = new Handler(Looper.getMainLooper());
@@ -55,7 +55,7 @@ public class RenderManager {
 
     private void prepareAsync(final OnPrepareFinishListener l) {
         prepareAxesRender(chart.getConfig());
-        preapareLineChartRender(chart.getConfig());
+        prepareLineChartRender(chart.getConfig());
         if (l != null) {
             mHandler.post(new Runnable() {
                 @Override
@@ -111,7 +111,7 @@ public class RenderManager {
 
     }
 
-    private void preapareLineChartRender(LineChartConfig config) {
+    private void prepareLineChartRender(LineChartConfig config) {
         LineChartRender render = (LineChartRender) renderLists.get(1);
         render.prepare();
     }
@@ -133,7 +133,8 @@ public class RenderManager {
         renderLists = null;
     }
 
-    public boolean handleTouch(MotionEvent event) {
+    @Override
+    public boolean onTouchEvent(MotionEvent event) {
         for (BaseRender render : renderLists) {
             if (render instanceof ITouchRender) {
                 boolean handled = ((ITouchRender) render).onTouchEvent(event);
@@ -143,6 +144,14 @@ public class RenderManager {
         return false;
     }
 
+    @Override
+    public void forceAbortTouch() {
+        for (BaseRender render : renderLists) {
+            if (render instanceof ITouchRender) {
+                ((ITouchRender) render).forceAbortTouch();
+            }
+        }
+    }
 
 
     public interface OnPrepareFinishListener {

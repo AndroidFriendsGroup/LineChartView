@@ -7,6 +7,9 @@ import android.util.AttributeSet;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewConfiguration;
+import android.view.ViewParent;
+import android.widget.ScrollView;
 
 import razerdp.com.widget.linechart.config.LineChartConfig;
 import razerdp.com.widget.linechart.manager.ChartManager;
@@ -23,6 +26,10 @@ public class LineChartView extends View implements IChart {
     private static final boolean DEBUG = false;
 
     private LineChartConfig mConfig;
+    private ScrollView mScrollViewParent;
+    private int maxFlingVertical;
+
+    private float lastTouchY;
 
     private enum Mode {
         DRAW,
@@ -46,9 +53,23 @@ public class LineChartView extends View implements IChart {
         init();
     }
 
+    @Override
+    protected void onAttachedToWindow() {
+        super.onAttachedToWindow();
+        ViewParent parent = getParent();
+        while (parent instanceof View) {
+            if (parent instanceof ScrollView) {
+                mScrollViewParent = (ScrollView) parent;
+                break;
+            }
+            parent = parent.getParent();
+        }
+    }
+
     private void init() {
         mChartManager = new ChartManager(this);
         mRenderManager = new RenderManager(this);
+        maxFlingVertical = ViewConfiguration.get(getContext()).getScaledTouchSlop();
     }
 
     @Override
@@ -96,7 +117,37 @@ public class LineChartView extends View implements IChart {
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
-        boolean handled = mRenderManager.handleTouch(event);
+        if (mScrollViewParent != null) {
+            switch (event.getAction()) {
+                case MotionEvent.ACTION_DOWN:
+                    lastTouchY = event.getY();
+                    break;
+                case MotionEvent.ACTION_MOVE:
+                    float curTouchY = event.getY();
+                    if (lastTouchY == 0) {
+                        lastTouchY = curTouchY;
+                    }
+                    if (Math.abs(curTouchY - lastTouchY) >= maxFlingVertical) {
+                        mRenderManager.forceAbortTouch();
+                        mScrollViewParent.requestDisallowInterceptTouchEvent(false);
+                        return true;
+                    }
+                    lastTouchY = curTouchY;
+                    break;
+                case MotionEvent.ACTION_UP:
+                    mScrollViewParent.requestDisallowInterceptTouchEvent(false);
+                    lastTouchY = 0;
+                    break;
+                default:
+                    mScrollViewParent.requestDisallowInterceptTouchEvent(true);
+                    break;
+            }
+            if (event.getAction() == MotionEvent.ACTION_UP) {
+            } else {
+                mScrollViewParent.requestDisallowInterceptTouchEvent(true);
+            }
+        }
+        boolean handled = mRenderManager.onTouchEvent(event);
         if (handled) {
             return true;
         } else {
