@@ -2,7 +2,7 @@ package razerdp.com.widget.linechart.line;
 
 import android.graphics.PointF;
 
-import razerdp.com.widget.linechart.ILineChatrInfo;
+import razerdp.com.widget.linechart.model.ILineChatrInfo;
 
 /**
  * Created by 大灯泡 on 2018/1/30.
@@ -26,6 +26,10 @@ public final class PointInfo {
 
     public float getY() {
         return point.y;
+    }
+
+    public boolean inTouch(float x, float touchToTouchRange) {
+        return x >= point.x - touchToTouchRange && x <= point.x + touchToTouchRange;
     }
 
     public ILineChatrInfo getInfo() {

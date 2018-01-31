@@ -1,6 +1,7 @@
-package razerdp.com.widget.util;
+package razerdp.com.widget.linechart.utils;
 
 import android.content.Context;
+import android.os.Looper;
 import android.util.TypedValue;
 
 import java.util.List;
@@ -33,5 +34,9 @@ public class ToolUtil {
 
     public static int sp2px(Context context, float spValue) {
         return (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, spValue, context.getResources().getDisplayMetrics());
+    }
+
+    public static boolean isMainThread() {
+        return Looper.getMainLooper().getThread() == Thread.currentThread();
     }
 }

@@ -1,12 +1,16 @@
 package razerdp.com.widget.linechart.config;
 
+import android.graphics.Color;
+
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 
-import razerdp.com.widget.linechart.ILineChatrInfo;
+import razerdp.com.widget.linechart.callback.OnChartTouchListener;
 import razerdp.com.widget.linechart.line.Line;
+import razerdp.com.widget.linechart.model.ILineChatrInfo;
 
 /**
  * Created by 大灯泡 on 2018/1/30.
@@ -16,14 +20,28 @@ public class LineChartConfig {
     private static final int DEFAULT_Y_AXES_COUNT = 6;
     private static final DecimalFormat DEFAULT_Y_AXIS_FORMAT = new DecimalFormat("0.00");
 
+    private static final int DEFAULT_TOUCH_LINE_WIDTH = 2;
+    private static final int DEFAULT_TOUCH_LINE_COLOR = Color.parseColor("#959DA5");
+    private static final int DEFAULT_TOUCH_POINT_RADIUS = 8;
+    private static final int DEFAULT_TOUCH_POINT_COLOR = Color.BLACK;
+
     //-----------------------------------------配置-----------------------------------------
     private int mAxesLabelMargin = DEFAULT_AXES_LABEL_MARGIN;
     private int mYAxesCount = DEFAULT_Y_AXES_COUNT;
     private boolean isCubic = true;
 
+    private int touchLineWidth = DEFAULT_TOUCH_LINE_WIDTH;
+    private int touchLineColor = DEFAULT_TOUCH_LINE_COLOR;
+    private int touchPointRadius = DEFAULT_TOUCH_POINT_RADIUS;
+    private int touchPointColor = DEFAULT_TOUCH_POINT_COLOR;
+
+
     //-----------------------------------------数据-----------------------------------------
     private List<String> xAxesLabels = new ArrayList<>();
     private HashMap<String, Line> linesMap = new HashMap<>();
+    private List<String> touchLineTag = new ArrayList<>();
+    private HashMap<String, OnChartTouchListener> mOnChartTouchListenerHashMap = new HashMap<>();
+
 
     private double maxYAxisValue = Double.NaN;
     private double minYAxisValue = Double.NaN;
@@ -37,7 +55,7 @@ public class LineChartConfig {
         return this;
     }
 
-    public LineChartConfig setAxesLabelMargin(int axesLabelMarginDp) {
+    public LineChartConfig axesLabelMargin(int axesLabelMarginDp) {
         mAxesLabelMargin = axesLabelMarginDp;
         return this;
     }
@@ -87,23 +105,54 @@ public class LineChartConfig {
         return this;
     }
 
-    public LineChartConfig setYAxesCount(int YAxesCount) {
+    public LineChartConfig yAxesCount(int YAxesCount) {
         mYAxesCount = YAxesCount;
         return this;
     }
 
-    public LineChartConfig setyAxisValueFormat(DecimalFormat yAxisValueFormat) {
+    public LineChartConfig axisValueFormat(DecimalFormat yAxisValueFormat) {
         this.yAxisValueFormat = yAxisValueFormat;
         return this;
     }
 
-    public LineChartConfig setyAxisStringFormat(String yAxisStringFormat) {
+    public LineChartConfig axisStringFormat(String yAxisStringFormat) {
         this.yAxisStringFormat = yAxisStringFormat;
         return this;
     }
 
-    public void cube(boolean cube) {
+    public LineChartConfig cube(boolean cube) {
         isCubic = cube;
+        return this;
+    }
+
+    public LineChartConfig touchLineWidth(int touchLineWidth) {
+        this.touchLineWidth = touchLineWidth;
+        return this;
+    }
+
+    public LineChartConfig touchLineColor(int touchLineColor) {
+        this.touchLineColor = touchLineColor;
+        return this;
+    }
+
+    public LineChartConfig touchPointRadius(int touchPointRadius) {
+        this.touchPointRadius = touchPointRadius;
+        return this;
+    }
+
+    public LineChartConfig touchPointColor(int touchPointColor) {
+        this.touchPointColor = touchPointColor;
+        return this;
+    }
+
+    public LineChartConfig enableTouchLine(String... lineTags) {
+        Collections.addAll(touchLineTag, lineTags);
+        return this;
+    }
+
+    public LineChartConfig chartTouchListener(String lineTag, OnChartTouchListener mOnChartTouchListener) {
+        mOnChartTouchListenerHashMap.put(lineTag, mOnChartTouchListener);
+        return this;
     }
 
     //-----------------------------------------getter-----------------------------------------
@@ -143,4 +192,27 @@ public class LineChartConfig {
         return isCubic;
     }
 
+    public int getTouchLineWidth() {
+        return touchLineWidth;
+    }
+
+    public int getTouchLineColor() {
+        return touchLineColor;
+    }
+
+    public int getTouchPointRadius() {
+        return touchPointRadius;
+    }
+
+    public int getTouchPointColor() {
+        return touchPointColor;
+    }
+
+    public List<String> getTouchLineTag() {
+        return touchLineTag;
+    }
+
+    public HashMap<String, OnChartTouchListener> getOnChartTouchListenerHashMap() {
+        return mOnChartTouchListenerHashMap;
+    }
 }

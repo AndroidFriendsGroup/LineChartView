@@ -1,4 +1,4 @@
-package razerdp.com.widget.linechart;
+package razerdp.com.widget.linechart.model;
 
 import android.graphics.Color;
 

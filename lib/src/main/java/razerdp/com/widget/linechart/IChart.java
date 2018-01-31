@@ -1,6 +1,7 @@
 package razerdp.com.widget.linechart;
 
 import android.content.Context;
+import android.view.View;
 
 import razerdp.com.widget.linechart.config.LineChartConfig;
 import razerdp.com.widget.linechart.manager.ChartManager;
@@ -15,5 +16,9 @@ public interface IChart {
     Context getViewContext();
 
     public LineChartConfig getConfig();
+
+    View getChartView();
+
+    void onCallInvalidate();
 
 }

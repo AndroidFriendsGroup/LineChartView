@@ -1,8 +1,11 @@
 package razerdp.com.widget.linechart.render;
 
 import android.graphics.Canvas;
+import android.os.Handler;
+import android.os.Looper;
 import android.support.annotation.Nullable;
 import android.text.TextUtils;
+import android.view.MotionEvent;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
@@ -14,6 +17,8 @@ import razerdp.com.widget.linechart.IChart;
 import razerdp.com.widget.linechart.axis.Axis;
 import razerdp.com.widget.linechart.config.LineChartConfig;
 import razerdp.com.widget.linechart.line.Line;
+import razerdp.com.widget.linechart.utils.ThreadPoolUtils;
+import razerdp.com.widget.linechart.utils.ToolUtil;
 
 /**
  * Created by 大灯泡 on 2018/1/30.
@@ -21,6 +26,7 @@ import razerdp.com.widget.linechart.line.Line;
 public class RenderManager {
     IChart chart;
     List<BaseRender> renderLists;
+    private Handler mHandler = new Handler(Looper.getMainLooper());
 
     public RenderManager(IChart chart) {
         this.chart = chart;
@@ -34,15 +40,29 @@ public class RenderManager {
     }
 
 
-    public void prepare(@Nullable OnPrepareFinishListener l) {
+    public void prepare(@Nullable final OnPrepareFinishListener l) {
         if (chart.getConfig() == null) {
             throw new NullPointerException("config must be not null");
         }
-        // TODO: 2018/1/30 可以考虑子线程
+        ThreadPoolUtils.execute(new Runnable() {
+            @Override
+            public void run() {
+                prepareAsync(l);
+            }
+        });
+
+    }
+
+    private void prepareAsync(final OnPrepareFinishListener l) {
         prepareAxesRender(chart.getConfig());
         preapareLineChartRender(chart.getConfig());
         if (l != null) {
-            l.onFinish();
+            mHandler.post(new Runnable() {
+                @Override
+                public void run() {
+                    l.onFinish();
+                }
+            });
         }
     }
 
@@ -101,6 +121,28 @@ public class RenderManager {
             renderList.draw(canvas);
         }
     }
+
+    public void destroy() {
+        if (mHandler != null) {
+            mHandler.removeCallbacksAndMessages(null);
+        }
+        mHandler = null;
+        if (!ToolUtil.isListEmpty(renderLists)) {
+            renderLists.clear();
+        }
+        renderLists = null;
+    }
+
+    public boolean handleTouch(MotionEvent event) {
+        for (BaseRender render : renderLists) {
+            if (render instanceof ITouchRender) {
+                boolean handled = ((ITouchRender) render).onTouchEvent(event);
+                if (handled) return true;
+            }
+        }
+        return false;
+    }
+
 
 
     public interface OnPrepareFinishListener {

@@ -5,11 +5,13 @@ import android.graphics.Canvas;
 import android.support.annotation.Nullable;
 import android.util.AttributeSet;
 import android.util.Log;
+import android.view.MotionEvent;
 import android.view.View;
 
 import razerdp.com.widget.linechart.config.LineChartConfig;
 import razerdp.com.widget.linechart.manager.ChartManager;
 import razerdp.com.widget.linechart.render.RenderManager;
+import razerdp.com.widget.linechart.utils.ToolUtil;
 
 
 /**
@@ -81,8 +83,6 @@ public class LineChartView extends View implements IChart {
                 });
             }
         });
-
-
     }
 
     //-----------------------------------------view-----------------------------------------
@@ -92,6 +92,16 @@ public class LineChartView extends View implements IChart {
     protected void onSizeChanged(int w, int h, int oldw, int oldh) {
         super.onSizeChanged(w, h, oldw, oldh);
         mChartManager.setChartContentRect(getWidth(), getHeight(), getPaddingLeft(), getPaddingTop(), getPaddingRight(), getPaddingBottom());
+    }
+
+    @Override
+    public boolean onTouchEvent(MotionEvent event) {
+        boolean handled = mRenderManager.handleTouch(event);
+        if (handled) {
+            return true;
+        } else {
+            return super.onTouchEvent(event);
+        }
     }
 
     //-----------------------------------------IChart实现-----------------------------------------
@@ -108,5 +118,19 @@ public class LineChartView extends View implements IChart {
     @Override
     public LineChartConfig getConfig() {
         return mConfig;
+    }
+
+    @Override
+    public View getChartView() {
+        return this;
+    }
+
+    @Override
+    public void onCallInvalidate() {
+        if (ToolUtil.isMainThread()) {
+            invalidate();
+        } else {
+            postInvalidate();
+        }
     }
 }

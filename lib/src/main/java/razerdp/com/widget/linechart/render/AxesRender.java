@@ -10,7 +10,7 @@ import java.util.List;
 
 import razerdp.com.widget.linechart.IChart;
 import razerdp.com.widget.linechart.axis.Axis;
-import razerdp.com.widget.util.ToolUtil;
+import razerdp.com.widget.linechart.utils.ToolUtil;
 
 /**
  * Created by 大灯泡 on 2018/1/30.
@@ -83,7 +83,7 @@ class AxesRender extends BaseRender {
         float lastY = yStartY;
         for (Axis yAx : mYAxes) {
             yAx.drawText(this, canvas, labelPaint, yStartX, lastY);
-            yAx.drawLine(this, canvas, linePaint, yStartX + maxYAxesLabelWidth + axisLabelMargin, lastY, yStartX + mChartManager.getDrawWidth(), lastY);
+            yAx.drawLine(this, canvas, linePaint, mChartManager.getChartLineDrawBounds().left, lastY, mChartManager.getChartLineDrawBounds().right, lastY);
             lastY -= yAxesMargin;
         }
     }

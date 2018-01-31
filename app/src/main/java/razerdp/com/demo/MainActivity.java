@@ -12,7 +12,9 @@ import java.util.Random;
 
 import razerdp.com.linechatview.R;
 import razerdp.com.widget.linechart.LineChartView;
-import razerdp.com.widget.linechart.SimpleLineChatrInfo;
+import razerdp.com.widget.linechart.callback.OnChartTouchListener;
+import razerdp.com.widget.linechart.model.ILineChatrInfo;
+import razerdp.com.widget.linechart.model.SimpleLineChatrInfo;
 import razerdp.com.widget.linechart.config.LineChartConfig;
 
 public class MainActivity extends AppCompatActivity {
@@ -58,7 +60,21 @@ public class MainActivity extends AppCompatActivity {
         xAxes.add("12-21");
         config.addXAxisLabels(xAxes)
                 .addDatas("line1", createData(random.nextDouble(), random, 20, Color.parseColor("#FD9726")))
-                .addDatas("line2", createData(random.nextDouble(), random, 30, Color.parseColor("#41A1EA")));
+                .addDatas("line2", createData(random.nextDouble(), random, 30, Color.parseColor("#41A1EA")))
+                .enableTouchLine("line1", "line2")
+                .chartTouchListener("line1", new OnChartTouchListener() {
+                    @Override
+                    public void onChartSelected(String lineTag, int touchAction, ILineChatrInfo data) {
+                        desc.setText(String.format("%s  %s  value  >>  %s", lineTag, touchActionToString(touchAction), data == null ? "null" : data.getValue()));
+
+                    }
+                })
+                .chartTouchListener("line2", new OnChartTouchListener() {
+                    @Override
+                    public void onChartSelected(String lineTag, int touchAction, ILineChatrInfo data) {
+                        desc2.setText(String.format("%s  %s  value  >>  %s", lineTag, touchActionToString(touchAction), data == null ? "null" : data.getValue()));
+                    }
+                });
 
         testView.start(config);
     }
@@ -98,4 +114,20 @@ public class MainActivity extends AppCompatActivity {
         info.setValue(value).setDesc(Double.toString(info.getValue()));
         return info;
     }
+
+    String touchActionToString(int action) {
+        switch (action) {
+            case OnChartTouchListener.ACTION_DOWN:
+                return "Action_down";
+            case OnChartTouchListener.ACTION_MOVE:
+                return "Action_move";
+            case OnChartTouchListener.ACTION_UP:
+                return "Action_up";
+            default:
+                return "Invalided";
+
+        }
+
+    }
+
 }

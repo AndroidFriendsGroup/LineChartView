@@ -1,4 +1,4 @@
-package razerdp.com.widget.linechart;
+package razerdp.com.widget.linechart.model;
 
 /**
  * Created by 大灯泡 on 2018/1/11.

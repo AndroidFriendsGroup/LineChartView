@@ -30,6 +30,9 @@ public abstract class BaseRender {
         return mChartManager;
     }
 
+    public void callInvalidate() {
+        chart.onCallInvalidate();
+    }
 
     public abstract void onDraw(Canvas canvas);
 

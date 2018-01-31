@@ -8,7 +8,8 @@ import android.text.TextUtils;
 import java.util.ArrayList;
 import java.util.List;
 
-import razerdp.com.widget.linechart.ILineChatrInfo;
+import razerdp.com.widget.linechart.callback.OnChartTouchListener;
+import razerdp.com.widget.linechart.model.ILineChatrInfo;
 
 /**
  * Created by 大灯泡 on 2018/1/30.
@@ -27,6 +28,8 @@ public class Line {
 
     private Paint linePaint;
     private Path linePath;
+
+    private OnChartTouchListener mChartTouchListener;
 
     List<PointInfo> mPoints;
 
@@ -103,6 +106,14 @@ public class Line {
         linePaint.setStyle(Paint.Style.STROKE);
         linePaint.setStrokeWidth(lineWidth);
         linePaint.setColor(lineColor);
+    }
+
+    public OnChartTouchListener getChartTouchListener() {
+        return mChartTouchListener;
+    }
+
+    public void setChartTouchListener(OnChartTouchListener chartTouchListener) {
+        mChartTouchListener = chartTouchListener;
     }
 
     @Override

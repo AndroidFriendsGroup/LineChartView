@@ -12,7 +12,7 @@ import java.util.List;
 import razerdp.com.widget.linechart.IChart;
 import razerdp.com.widget.linechart.render.BaseRender;
 import razerdp.com.widget.linechart.utils.CLog;
-import razerdp.com.widget.util.ToolUtil;
+import razerdp.com.widget.linechart.utils.ToolUtil;
 
 /**
  * Created by 大灯泡 on 2018/1/30.
