@@ -1,10 +1,14 @@
 package razerdp.com.widget.linechart.render;
 
 import android.graphics.Canvas;
+import android.support.annotation.Nullable;
+import android.text.TextUtils;
 
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 
 import razerdp.com.widget.linechart.IChart;
 import razerdp.com.widget.linechart.axis.Axis;
@@ -30,19 +34,21 @@ public class RenderManager {
     }
 
 
-    public void prepare() {
+    public void prepare(@Nullable OnPrepareFinishListener l) {
         if (chart.getConfig() == null) {
             throw new NullPointerException("config must be not null");
         }
         // TODO: 2018/1/30 可以考虑子线程
         prepareAxesRender(chart.getConfig());
         preapareLineChartRender(chart.getConfig());
+        if (l != null) {
+            l.onFinish();
+        }
     }
 
     private void prepareAxesRender(LineChartConfig config) {
         AxesRender render = (AxesRender) renderLists.get(0);
         render.reset();
-        render.axisLabelPadding = config.getAxesLabelMargin() == 0 ? render.axisLabelPadding : config.getAxesLabelMargin();
 
         //x轴
         List<String> xLabels = config.getxAxesLabels();
@@ -55,21 +61,50 @@ public class RenderManager {
         double maxValue = config.getMaxYAxisValue();
         double minValue = config.getMinYAxisValue();
 
-        final int yAxesCount = config.getYAxesCount();
-        double yPercent = (maxValue - minValue) / yAxesCount;
-        for (int i = 0; i < yAxesCount; i++) {
-            render.addYAxesData(new Axis());
+        double exRange = (maxValue - minValue) / 5;
+        if (exRange == 0) {
+            exRange = maxValue / 5;
         }
 
+        maxValue += exRange;
+        minValue -= exRange;
+
+        chart.getChartManager().setYAxisMinValue(minValue);
+        chart.getChartManager().setYAxisMaxValue(maxValue);
+
+        final int yAxesCount = config.getYAxesCount();
+        double yPercent = (maxValue - minValue) / yAxesCount;
+        String format = config.getyAxisStringFormat();
+        DecimalFormat valueFormat = config.getyAxisValueFormat();
+        for (int i = 0; i < yAxesCount; i++) {
+            Axis axis = new Axis();
+            double value = minValue + yPercent * i;
+            if (!TextUtils.isEmpty(format)) {
+                axis.setLabel(String.format(Locale.getDefault(), format, valueFormat == null ? Double.toString(value) : valueFormat.format(value)));
+            } else {
+                axis.setLabel(valueFormat == null ? Double.toString(value) : valueFormat.format(value));
+            }
+            render.addYAxesData(axis);
+        }
+
+        render.prepare();
 
     }
 
     private void preapareLineChartRender(LineChartConfig config) {
-
+        LineChartRender render = (LineChartRender) renderLists.get(1);
+        render.prepare();
     }
 
     public void dispatchDraw(Canvas canvas) {
+        for (BaseRender renderList : renderLists) {
+            renderList.draw(canvas);
+        }
+    }
 
+
+    public interface OnPrepareFinishListener {
+        void onFinish();
     }
 
 }

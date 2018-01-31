@@ -1,6 +1,8 @@
 package razerdp.com.widget.linechart.line;
 
 import android.graphics.Color;
+import android.graphics.Paint;
+import android.graphics.Path;
 import android.text.TextUtils;
 
 import java.util.ArrayList;
@@ -23,6 +25,9 @@ public class Line {
 
     private boolean cubic = true;
 
+    private Paint linePaint;
+    private Path linePath;
+
     List<PointInfo> mPoints;
 
     public Line() {
@@ -32,6 +37,7 @@ public class Line {
     public Line(String lineTag) {
         this.lineTag = TextUtils.isEmpty(lineTag) ? Long.toString(System.currentTimeMillis()) : lineTag;
         mPoints = new ArrayList<>();
+        linePath = new Path();
     }
 
     public String getLineTag() {
@@ -78,6 +84,26 @@ public class Line {
         mPoints.add(new PointInfo(info));
     }
 
+    public List<PointInfo> getPoints() {
+        return mPoints;
+    }
+
+    public Paint getLinePaint() {
+        return linePaint;
+    }
+
+    public Path getLinePath() {
+        return linePath;
+    }
+
+    public void preparePaint() {
+        if (linePaint == null) {
+            linePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+        }
+        linePaint.setStyle(Paint.Style.STROKE);
+        linePaint.setStrokeWidth(lineWidth);
+        linePaint.setColor(lineColor);
+    }
 
     @Override
     public boolean equals(Object obj) {

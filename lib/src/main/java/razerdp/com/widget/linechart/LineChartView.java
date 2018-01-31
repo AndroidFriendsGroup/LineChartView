@@ -4,6 +4,7 @@ import android.content.Context;
 import android.graphics.Canvas;
 import android.support.annotation.Nullable;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.View;
 
 import razerdp.com.widget.linechart.config.LineChartConfig;
@@ -18,6 +19,8 @@ public class LineChartView extends View implements IChart {
     private static final String TAG = "LineChatView";
 
     private static final boolean DEBUG = false;
+
+    private LineChartConfig mConfig;
 
     private enum Mode {
         DRAW,
@@ -49,6 +52,37 @@ public class LineChartView extends View implements IChart {
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
+        if (mConfig == null) {
+            Log.e(TAG, "onDraw: config is null,abort draw");
+            return;
+        }
+        mRenderManager.dispatchDraw(canvas);
+    }
+
+    public LineChartView applyConfig(LineChartConfig config) {
+        this.mConfig = config;
+        return this;
+    }
+
+    public void start() {
+        start(this.mConfig);
+    }
+
+    public void start(LineChartConfig chartConfig) {
+        applyConfig(chartConfig);
+        post(new Runnable() {
+            @Override
+            public void run() {
+                mRenderManager.prepare(new RenderManager.OnPrepareFinishListener() {
+                    @Override
+                    public void onFinish() {
+                        invalidate();
+                    }
+                });
+            }
+        });
+
+
     }
 
     //-----------------------------------------view-----------------------------------------
@@ -73,6 +107,6 @@ public class LineChartView extends View implements IChart {
 
     @Override
     public LineChartConfig getConfig() {
-        return null;
+        return mConfig;
     }
 }

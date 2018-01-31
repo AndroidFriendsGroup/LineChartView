@@ -3,7 +3,6 @@ package razerdp.com.demo;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
-import android.view.MotionEvent;
 import android.view.View;
 import android.widget.TextView;
 
@@ -12,11 +11,9 @@ import java.util.List;
 import java.util.Random;
 
 import razerdp.com.linechatview.R;
-import razerdp.com.widget.linechart.LineChartConfig2;
-import razerdp.com.widget.linechart.LineChatPrepareConfig;
 import razerdp.com.widget.linechart.LineChartView;
-import razerdp.com.widget.linechart.OnLineChartSelectedListener;
 import razerdp.com.widget.linechart.SimpleLineChatrInfo;
+import razerdp.com.widget.linechart.config.LineChartConfig;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -49,27 +46,21 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void applyConfig(Random random) {
-        LineChartConfig2 config = new LineChartConfig2();
-        config.addDatas("line1", createData(random.nextDouble(), random, 20, Color.parseColor("#FD9726")))
-                .addDatas("line2", createData(random.nextDouble(), random, 30, Color.parseColor("#41A1EA")))
-                .xCoordinateDescForStart("2017-06-29")
-                .xCoordinateDescForEnd("2018-01-12")
-                .enableLineTouchPoint("line1", "line2")
-                .addChatSelectedListener("line1", new OnLineChartSelectedListener<SimpleLineChatrInfo>() {
-                    @Override
-                    public void onSelected(MotionEvent event, String lineTag, SimpleLineChatrInfo data) {
-                        desc.setText("line >>  " + lineTag + "  value  >>  " + data.getValue());
+        LineChartConfig config = new LineChartConfig();
+        List<String> xAxes = new ArrayList<>();
+        xAxes.add("12-18");
+        xAxes.add("12-19");
+        xAxes.add("12-20");
+        xAxes.add("12-21");
+        xAxes.add("12-21");
+        xAxes.add("12-21");
+        xAxes.add("12-21");
+        xAxes.add("12-21");
+        config.addXAxisLabels(xAxes)
+                .addDatas("line1", createData(random.nextDouble(), random, 20, Color.parseColor("#FD9726")))
+                .addDatas("line2", createData(random.nextDouble(), random, 30, Color.parseColor("#41A1EA")));
 
-                    }
-                })
-                .addChatSelectedListener("line2", new OnLineChartSelectedListener<SimpleLineChatrInfo>() {
-                    @Override
-                    public void onSelected(MotionEvent event, String lineTag, SimpleLineChatrInfo data) {
-                        desc2.setText("line2 >>  " + lineTag + "  value  >>  " + data.getValue());
-
-                    }
-                });
-        testView.applyConfig(config).start(new LineChatPrepareConfig().setYcoordinateFormated("%s%%"));
+        testView.start(config);
     }
 
     private List<SimpleLineChatrInfo> createData(double start, Random random, int count, int color) {

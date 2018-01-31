@@ -9,6 +9,7 @@ import razerdp.com.widget.linechart.manager.ChartManager;
  * Created by 大灯泡 on 2018/1/30.
  */
 public abstract class BaseRender {
+    protected String TAG = this.getClass().getSimpleName();
 
     ChartManager mChartManager;
     IChart chart;
@@ -35,5 +36,7 @@ public abstract class BaseRender {
     public abstract void onSizeChanged(int width, int height, int paddingLeft, int paddingTop, int paddingRight, int paddingBottom);
 
     public abstract void reset();
+
+    public abstract void prepare();
 
 }

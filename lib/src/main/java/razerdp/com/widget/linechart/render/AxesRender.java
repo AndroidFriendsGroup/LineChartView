@@ -17,16 +17,14 @@ import razerdp.com.widget.util.ToolUtil;
  */
 class AxesRender extends BaseRender {
     private static final int DEFAULT_AXIS_LINE_WIDTH = 1;
-    private static final int DEFAULT_AXIS_LINE_COLOR = Color.argb(125, 207, 207, 207);
+    private static final int DEFAULT_AXIS_LINE_COLOR = Color.argb(150, 207, 207, 207);
     private static final int DEFAULT_AXIS_TEXT_SIZE = 14;
     private static final int DEFAULT_AXIS_TEXT_COLOR = Color.rgb(207, 207, 207);
-    private static final int DEFAULT_AXIS_LABEL_PADDING = 4;
 
     int axisLineWidth = DEFAULT_AXIS_LINE_WIDTH;
     int axisLineColor = DEFAULT_AXIS_LINE_COLOR;
     int axisTextSize = DEFAULT_AXIS_TEXT_SIZE;
     int axisTextColor = DEFAULT_AXIS_TEXT_COLOR;
-    int axisLabelPadding = DEFAULT_AXIS_LABEL_PADDING;
 
     private List<Axis> mXAxes = new ArrayList<>();
     private List<Axis> mYAxes = new ArrayList<>();
@@ -67,30 +65,33 @@ class AxesRender extends BaseRender {
     @Override
     public void onDraw(Canvas canvas) {
         if (ToolUtil.isListEmpty(mXAxes) && ToolUtil.isListEmpty(mYAxes)) return;
-        preparePaint();
-        preMeasure();
-        float xAxesMargin = (mChartManager.getDrawWidth() / mXAxes.size()) - maxXAxesLabelWidth;
-        float yAxesMargin = mChartManager.getDrawHeight() / mYAxes.size();
+        float xAxesMargin = (mChartManager.getDrawWidth() - maxXAxesLabelWidth) / mXAxes.size();
 
+        int axisLabelMargin = chart.getConfig().getAxesLabelMargin();
         //x轴
-        float xStartX = maxYAxesLabelWidth + axisLabelPadding;
-        float xStartY = mChartManager.getDrawHeight() - axisLabelPadding;
+        float xStartX = maxYAxesLabelWidth + (axisLabelMargin << 1);
+        float xStartY = mChartManager.getDrawHeight() - axisLabelMargin;
         float lastX = xStartX;
         for (Axis xAx : mXAxes) {
             xAx.drawText(this, canvas, labelPaint, lastX, xStartY);
             lastX += xAxesMargin;
         }
-
         //y轴
-        float yStartX = mChartManager.getDrawBounds().left + axisLabelPadding;
-        float yStartY = xStartY - maxXAxesLabelHeight - axisLabelPadding;
+        float yStartX = mChartManager.getDrawBounds().left + axisLabelMargin;
+        float yStartY = xStartY - maxXAxesLabelHeight - axisLabelMargin;
+        float yAxesMargin = (yStartY - mChartManager.getDrawBounds().top - maxYAxesLabelHeight - axisLabelMargin) / (mYAxes.size() - 1);
         float lastY = yStartY;
         for (Axis yAx : mYAxes) {
             yAx.drawText(this, canvas, labelPaint, yStartX, lastY);
-            yAx.drawLine(this, canvas, labelPaint, yStartX, lastY, yStartX + mChartManager.getDrawWidth(), lastY);
+            yAx.drawLine(this, canvas, linePaint, yStartX + maxYAxesLabelWidth + axisLabelMargin, lastY, yStartX + mChartManager.getDrawWidth(), lastY);
             lastY -= yAxesMargin;
         }
+    }
 
+    @Override
+    public void prepare() {
+        preparePaint();
+        preMeasure();
     }
 
     private void preMeasure() {
@@ -106,6 +107,18 @@ class AxesRender extends BaseRender {
             maxYAxesLabelWidth = Math.max(maxYAxesLabelWidth, mChartManager.measureTextBounds(label, labelPaint).width());
             maxYAxesLabelHeight = Math.max(maxYAxesLabelHeight, mChartManager.measureTextBounds(label, labelPaint).height());
         }
+
+        //计算折线图的内容区域
+        int axisLabelMargin = chart.getConfig().getAxesLabelMargin();
+        //y轴label左右都有labelMargin
+
+        float left = mChartManager.getDrawBounds().left + maxYAxesLabelWidth + (axisLabelMargin << 1);
+        float bottom = mChartManager.getDrawHeight() - maxXAxesLabelHeight - (axisLabelMargin << 1);
+        float yAxesMargin = (bottom - mChartManager.getDrawBounds().top - maxYAxesLabelHeight - axisLabelMargin) / (mYAxes.size() - 1);
+        float top = bottom - yAxesMargin * mYAxes.size();
+        float right = left + mChartManager.getDrawWidth();
+
+        mChartManager.setChartLineDrawBounds(left, top, right, bottom);
 
         hasPreMeasure = true;
 

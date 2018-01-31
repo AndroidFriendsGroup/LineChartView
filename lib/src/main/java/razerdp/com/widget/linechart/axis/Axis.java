@@ -29,12 +29,12 @@ public class Axis {
 
 
     public void drawLine(BaseRender render, Canvas canvas, Paint paint, float startX, float startY, float endX, float endY) {
-        canvas.drawLine(startX, startY, endX, endY, paint);
+        int height = render.getChartManager().measureTextBounds(label, paint).height();
+        float y = startY - (height >> 1);
+        canvas.drawLine(startX, y, endX, y, paint);
     }
 
     public void drawText(BaseRender render, Canvas canvas, Paint paint, float x, float y) {
-        int height = render.getChartManager().measureTextBounds(label, paint).height();
-        y = y - (height >> 1);
         canvas.drawText(label, x, y, paint);
     }
 }

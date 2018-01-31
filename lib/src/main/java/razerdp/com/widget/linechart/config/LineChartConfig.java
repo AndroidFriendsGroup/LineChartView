@@ -12,14 +12,14 @@ import razerdp.com.widget.linechart.line.Line;
  * Created by 大灯泡 on 2018/1/30.
  */
 public class LineChartConfig {
-    private static final int DEFAULT_AXES_LABEL_MARGIN_DP = 8;
+    private static final int DEFAULT_AXES_LABEL_MARGIN = 8;
     private static final int DEFAULT_Y_AXES_COUNT = 6;
     private static final DecimalFormat DEFAULT_Y_AXIS_FORMAT = new DecimalFormat("0.00");
 
     //-----------------------------------------配置-----------------------------------------
-    private int mAxesLabelMargin = DEFAULT_AXES_LABEL_MARGIN_DP;
+    private int mAxesLabelMargin = DEFAULT_AXES_LABEL_MARGIN;
     private int mYAxesCount = DEFAULT_Y_AXES_COUNT;
-    private boolean isCube = true;
+    private boolean isCubic = true;
 
     //-----------------------------------------数据-----------------------------------------
     private List<String> xAxesLabels = new ArrayList<>();
@@ -31,7 +31,7 @@ public class LineChartConfig {
     private String yAxisStringFormat = "";
 
     public LineChartConfig reset() {
-        mAxesLabelMargin = DEFAULT_AXES_LABEL_MARGIN_DP;
+        mAxesLabelMargin = DEFAULT_AXES_LABEL_MARGIN;
         xAxesLabels.clear();
         linesMap.clear();
         return this;
@@ -79,7 +79,7 @@ public class LineChartConfig {
             line = new Line(lineTag);
             linesMap.put(line.getLineTag(), line);
         }
-        line.setCubic(isCube);
+        line.setCubic(isCubic);
         line.setLineWidth(info.getChartLineWidth());
         line.setLineColor(info.getChatrLineColor());
         line.setPointRadius(info.getHightLightRadius());
@@ -100,6 +100,10 @@ public class LineChartConfig {
     public LineChartConfig setyAxisStringFormat(String yAxisStringFormat) {
         this.yAxisStringFormat = yAxisStringFormat;
         return this;
+    }
+
+    public void cube(boolean cube) {
+        isCubic = cube;
     }
 
     //-----------------------------------------getter-----------------------------------------
@@ -134,4 +138,9 @@ public class LineChartConfig {
     public String getyAxisStringFormat() {
         return yAxisStringFormat;
     }
+
+    public boolean isCubic() {
+        return isCubic;
+    }
+
 }
