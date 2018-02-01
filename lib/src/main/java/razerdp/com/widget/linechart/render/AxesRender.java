@@ -65,11 +65,11 @@ class AxesRender extends BaseRender {
     @Override
     public void onDraw(Canvas canvas) {
         if (ToolUtil.isListEmpty(mXAxes) && ToolUtil.isListEmpty(mYAxes)) return;
-        float xAxesMargin = (mChartManager.getDrawWidth() - maxXAxesLabelWidth) / mXAxes.size();
 
         int axisLabelMargin = chart.getConfig().getAxesLabelMargin();
+        float xAxesMargin = (mChartManager.getChartLineDrawBounds().width() - maxXAxesLabelWidth) / (mXAxes.size() - 1);
         //x轴
-        float xStartX = maxYAxesLabelWidth + (axisLabelMargin << 1);
+        float xStartX = mChartManager.getChartLineDrawBounds().left;
         float xStartY = mChartManager.getDrawHeight() - axisLabelMargin;
         float lastX = xStartX;
         for (Axis xAx : mXAxes) {
@@ -116,7 +116,7 @@ class AxesRender extends BaseRender {
         float bottom = mChartManager.getDrawHeight() - maxXAxesLabelHeight - (axisLabelMargin << 1);
         float yAxesMargin = (bottom - mChartManager.getDrawBounds().top - maxYAxesLabelHeight - axisLabelMargin) / (mYAxes.size() - 1);
         float top = bottom - yAxesMargin * mYAxes.size();
-        float right = left + mChartManager.getDrawWidth();
+        float right = mChartManager.getDrawBounds().right;
 
         mChartManager.setChartLineDrawBounds(left, top, right, bottom);
 

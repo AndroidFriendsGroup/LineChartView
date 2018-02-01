@@ -53,12 +53,12 @@ public class MainActivity extends AppCompatActivity {
         List<String> xAxes = new ArrayList<>();
         xAxes.add("12-18");
         xAxes.add("12-19");
-        xAxes.add("12-20");
-        xAxes.add("12-21");
-        xAxes.add("12-21");
-        xAxes.add("12-21");
-        xAxes.add("12-21");
-        xAxes.add("12-21");
+//        xAxes.add("12-20");
+//        xAxes.add("12-21");
+//        xAxes.add("12-21");
+//        xAxes.add("12-21");
+//        xAxes.add("12-21");
+//        xAxes.add("12-21");
         config.addXAxisLabels(xAxes)
                 .addDatas("line1", createData(random.nextDouble(), random, 20, Color.parseColor("#FD9726")))
                 .addDatas("line2", createData(random.nextDouble(), random, 30, Color.parseColor("#41A1EA")))

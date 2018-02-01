@@ -12,6 +12,7 @@ import razerdp.com.widget.linechart.callback.OnChartTouchListener;
 import razerdp.com.widget.linechart.line.Line;
 import razerdp.com.widget.linechart.model.ILineChatrInfo;
 
+
 /**
  * Created by 大灯泡 on 2018/1/30.
  */
@@ -71,7 +72,7 @@ public class LineChartConfig {
         return this;
     }
 
-    public LineChartConfig addXAxisLabels(List<String> labels) {
+    public LineChartConfig xAxisLabels(List<String> labels) {
         if (labels == null) return this;
         if (labels.size() == 0) {
             xAxesLabels.clear();

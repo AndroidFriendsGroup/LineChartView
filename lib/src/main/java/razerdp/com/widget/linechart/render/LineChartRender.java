@@ -67,7 +67,7 @@ public class LineChartRender extends BaseRender implements ITouchRender {
         }
 
         if (config.isAnimLine()) {
-            if (!isAnimating && !hasAnimated) {
+            if (!isAnimating && !hasAnimated && mLineAnimator != null) {
                 hasAnimated = true;
                 mLineAnimator.start();
             }
@@ -280,7 +280,7 @@ public class LineChartRender extends BaseRender implements ITouchRender {
 
         float startX = mChartManager.getChartLineDrawBounds().left;
         float startY = mChartManager.getChartLineDrawBounds().bottom;
-        float xMargin = mChartManager.getChartLineDrawBounds().width() / maxXAxesLength;
+        float xMargin = mChartManager.getChartLineDrawBounds().width() / (maxXAxesLength - 1);
         float lineBoundsHeight = mChartManager.getChartLineDrawBounds().height();
 
         for (Line line : mLines) {
