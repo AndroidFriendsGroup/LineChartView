@@ -20,6 +20,11 @@ public class LineChartConfig {
     private static final int DEFAULT_AXES_LABEL_MARGIN = 8;
     private static final int DEFAULT_Y_AXES_COUNT = 6;
     private static final DecimalFormat DEFAULT_Y_AXIS_FORMAT = new DecimalFormat("0.00");
+    private static final int DEFAULT_AXIS_LINE_WIDTH = 1;
+    private static final int DEFAULT_AXIS_LINE_COLOR = Color.argb(150, 207, 207, 207);
+    private static final int DEFAULT_AXIS_TEXT_SIZE = 12;
+    private static final int DEFAULT_AXIS_TEXT_COLOR = Color.rgb(207, 207, 207);
+
 
     private static final int DEFAULT_TOUCH_LINE_WIDTH = 2;
     private static final int DEFAULT_TOUCH_LINE_COLOR = Color.parseColor("#959DA5");
@@ -32,6 +37,11 @@ public class LineChartConfig {
     //-----------------------------------------配置-----------------------------------------
     private int mAxesLabelMargin = DEFAULT_AXES_LABEL_MARGIN;
     private int mYAxesCount = DEFAULT_Y_AXES_COUNT;
+    private int axisLineWidth = DEFAULT_AXIS_LINE_WIDTH;
+    private int axisLineColor = DEFAULT_AXIS_LINE_COLOR;
+    private int axisTextSize = DEFAULT_AXIS_TEXT_SIZE;
+    private int axisTextColor = DEFAULT_AXIS_TEXT_COLOR;
+
     private boolean isCubic = true;
 
     private int touchLineWidth = DEFAULT_TOUCH_LINE_WIDTH;
@@ -154,6 +164,9 @@ public class LineChartConfig {
     }
 
     public LineChartConfig chartTouchListener(String lineTag, OnChartTouchListener mOnChartTouchListener) {
+        if (!touchLineTag.contains(lineTag)) {
+            touchLineTag.add(lineTag);
+        }
         mOnChartTouchListenerHashMap.put(lineTag, mOnChartTouchListener);
         return this;
     }
@@ -170,6 +183,26 @@ public class LineChartConfig {
 
     public LineChartConfig animaLineDuration(long animaLineDuration) {
         this.animaLineDuration = animaLineDuration;
+        return this;
+    }
+
+    public LineChartConfig axisLineWidth(int axisLineWidth) {
+        this.axisLineWidth = axisLineWidth;
+        return this;
+    }
+
+    public LineChartConfig axisLineColor(int axisLineColor) {
+        this.axisLineColor = axisLineColor;
+        return this;
+    }
+
+    public LineChartConfig axisTextSize(int axisTextSize) {
+        this.axisTextSize = axisTextSize;
+        return this;
+    }
+
+    public LineChartConfig axisTextColor(int axisTextColor) {
+        this.axisTextColor = axisTextColor;
         return this;
     }
 
@@ -240,5 +273,21 @@ public class LineChartConfig {
 
     public long getAnimaLineDuration() {
         return animaLineDuration;
+    }
+
+    public int getAxisLineWidth() {
+        return axisLineWidth;
+    }
+
+    public int getAxisLineColor() {
+        return axisLineColor;
+    }
+
+    public int getAxisTextSize() {
+        return axisTextSize;
+    }
+
+    public int getAxisTextColor() {
+        return axisTextColor;
     }
 }

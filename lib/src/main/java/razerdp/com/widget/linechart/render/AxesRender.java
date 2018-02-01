@@ -1,7 +1,6 @@
 package razerdp.com.widget.linechart.render;
 
 import android.graphics.Canvas;
-import android.graphics.Color;
 import android.graphics.DashPathEffect;
 import android.graphics.Paint;
 
@@ -10,21 +9,14 @@ import java.util.List;
 
 import razerdp.com.widget.linechart.IChart;
 import razerdp.com.widget.linechart.axis.Axis;
+import razerdp.com.widget.linechart.config.LineChartConfig;
 import razerdp.com.widget.linechart.utils.ToolUtil;
+
 
 /**
  * Created by 大灯泡 on 2018/1/30.
  */
 class AxesRender extends BaseRender {
-    private static final int DEFAULT_AXIS_LINE_WIDTH = 1;
-    private static final int DEFAULT_AXIS_LINE_COLOR = Color.argb(150, 207, 207, 207);
-    private static final int DEFAULT_AXIS_TEXT_SIZE = 14;
-    private static final int DEFAULT_AXIS_TEXT_COLOR = Color.rgb(207, 207, 207);
-
-    int axisLineWidth = DEFAULT_AXIS_LINE_WIDTH;
-    int axisLineColor = DEFAULT_AXIS_LINE_COLOR;
-    int axisTextSize = DEFAULT_AXIS_TEXT_SIZE;
-    int axisTextColor = DEFAULT_AXIS_TEXT_COLOR;
 
     private List<Axis> mXAxes = new ArrayList<>();
     private List<Axis> mYAxes = new ArrayList<>();
@@ -51,15 +43,16 @@ class AxesRender extends BaseRender {
         if (labelPaint == null) {
             labelPaint = new Paint(Paint.ANTI_ALIAS_FLAG | Paint.DITHER_FLAG);
         }
+        LineChartConfig config = chart.getConfig();
 
         linePaint.setStyle(Paint.Style.STROKE);
-        linePaint.setStrokeWidth(axisLineWidth);
-        linePaint.setColor(axisLineColor);
+        linePaint.setStrokeWidth(config.getAxisLineWidth());
+        linePaint.setColor(config.getAxisLineColor());
         linePaint.setPathEffect(new DashPathEffect(new float[]{5, 5}, 0));
 
         labelPaint.setStyle(Paint.Style.FILL);
-        labelPaint.setTextSize(ToolUtil.sp2px(chart.getViewContext(), axisTextSize));
-        labelPaint.setColor(axisTextColor);
+        labelPaint.setTextSize(ToolUtil.sp2px(chart.getViewContext(), config.getAxisTextSize()));
+        labelPaint.setColor(config.getAxisTextColor());
     }
 
     @Override
