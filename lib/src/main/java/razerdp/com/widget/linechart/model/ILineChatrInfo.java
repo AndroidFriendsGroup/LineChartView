@@ -18,4 +18,6 @@ public interface ILineChatrInfo {
     int getHightLightRadius();
 
     int getHightLightColor();
+
+    boolean withShadow();
 }

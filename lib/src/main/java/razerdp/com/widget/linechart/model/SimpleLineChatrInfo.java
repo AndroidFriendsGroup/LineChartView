@@ -8,13 +8,14 @@ import java.io.Serializable;
  * Created by 大灯泡 on 2018/1/11.
  */
 public class SimpleLineChatrInfo implements ILineChatrInfo, Serializable {
-    private int chatLineWidth = 4;
+    private int chatLineWidth = 6;
     private int chatLineColor = Color.parseColor("#ff7113");
     private String desc;
     private double value;
     private boolean isHightLight;
     private int hightLightRadius = 5;
     private int highLightColor = Color.parseColor("#49d1fe");
+    private boolean withShadow = true;
 
     public SimpleLineChatrInfo() {
     }
@@ -87,5 +88,15 @@ public class SimpleLineChatrInfo implements ILineChatrInfo, Serializable {
     @Override
     public int getHightLightColor() {
         return highLightColor;
+    }
+
+    public SimpleLineChatrInfo withShadow(boolean withShadow) {
+        this.withShadow = withShadow;
+        return this;
+    }
+
+    @Override
+    public boolean withShadow() {
+        return withShadow;
     }
 }

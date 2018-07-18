@@ -41,6 +41,7 @@ public class LineChartRender extends BaseRender implements ITouchRender {
 
     private Paint touchLinePaint;
     private Paint touchPointPaint;
+    private Paint highLightPaint;
 
     private ValueAnimator mLineAnimator;
     private boolean isAnimating;
@@ -133,6 +134,7 @@ public class LineChartRender extends BaseRender implements ITouchRender {
             } else {
                 path.lineTo(x, y);
             }
+            drawHighLightPoint(canvas, pointInfo);
             prePointY = y;
             pointIndex++;
         }
@@ -145,7 +147,28 @@ public class LineChartRender extends BaseRender implements ITouchRender {
         } else {
             canvas.drawPath(path, paint);
         }
+        for (PointInfo pointInfo : line.getPoints()) {
+            drawHighLightPoint(canvas, pointInfo);
+        }
         path.rewind();
+    }
+
+    private void drawHighLightPoint(Canvas canvas, PointInfo pointInfo) {
+        ILineChatrInfo info = pointInfo.getInfo();
+        if (info == null || !info.isHightLight()) return;
+        prepareHighLightPaint(info);
+        int radius = info.getHightLightRadius();
+        canvas.drawCircle(pointInfo.getX(), pointInfo.getY(), radius, highLightPaint);
+        highLightPaint.setColor(Color.WHITE);
+        canvas.drawCircle(pointInfo.getX(), pointInfo.getY(), radius / 2, highLightPaint);
+    }
+
+    private void prepareHighLightPaint(ILineChatrInfo info) {
+        if (highLightPaint == null) {
+            highLightPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+            highLightPaint.setStyle(Paint.Style.FILL);
+        }
+        highLightPaint.setColor(info.getHightLightColor());
     }
 
     private void onDrawOnTouch(Canvas canvas) {
@@ -231,6 +254,9 @@ public class LineChartRender extends BaseRender implements ITouchRender {
             canvas.drawPath(measurePath, paint);
         } else {
             canvas.drawPath(path, paint);
+        }
+        for (PointInfo pointInfo : line.getPoints()) {
+            drawHighLightPoint(canvas, pointInfo);
         }
         path.rewind();
 

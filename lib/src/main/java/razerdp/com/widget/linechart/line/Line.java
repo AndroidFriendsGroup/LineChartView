@@ -16,13 +16,14 @@ import razerdp.com.widget.linechart.model.ILineChatrInfo;
  */
 public class Line {
     private String lineTag;
-    private static final int DEFAULT_LINE_WIDTH = 4;
+    private static final int DEFAULT_LINE_WIDTH = 6;
     private static final int DEFAULT_LINE_COLOR = Color.parseColor("#ff7113");
     private static final int DEFAULT_POINT_RADIUS = 6;
 
     private int lineWidth = DEFAULT_LINE_WIDTH;
     private int lineColor = DEFAULT_LINE_COLOR;
     private int pointRadius = DEFAULT_POINT_RADIUS;
+    private boolean withShadow;
 
     private Paint linePaint;
     private Path linePath;
@@ -61,6 +62,15 @@ public class Line {
         return lineColor;
     }
 
+    public boolean isWithShadow() {
+        return withShadow;
+    }
+
+    public Line setWithShadow(boolean withShadow) {
+        this.withShadow = withShadow;
+        return this;
+    }
+
     public void setLineColor(int lineColor) {
         this.lineColor = lineColor;
     }
@@ -79,6 +89,7 @@ public class Line {
             setLineWidth(info.getChartLineWidth());
             setLineColor(info.getChatrLineColor());
             setPointRadius(info.getHightLightRadius());
+            setWithShadow(info.withShadow());
         }
     }
 
@@ -101,6 +112,23 @@ public class Line {
         linePaint.setStyle(Paint.Style.STROKE);
         linePaint.setStrokeWidth(lineWidth);
         linePaint.setColor(lineColor);
+        if (withShadow) {
+            linePaint.setShadowLayer(8, 3, 8, getShadowColor(lineColor));
+        }
+    }
+
+    private int getShadowColor(int originColor) {
+        int result = originColor;
+        int a = Color.alpha(originColor);
+        int r = Color.red(originColor);
+        int g = Color.green(originColor);
+        int b = Color.blue(originColor);
+
+        if (a > 150) {
+            a = 150;
+        }
+        result = Color.argb(a, r, g, b);
+        return result;
     }
 
     public OnChartTouchListener getChartTouchListener() {
