@@ -17,7 +17,7 @@ import razerdp.com.widget.linechart.model.ILineChatrInfo;
  * Created by 大灯泡 on 2018/1/30.
  */
 public class LineChartConfig {
-    private static final int DEFAULT_AXES_LABEL_MARGIN = 8;
+    private static final int DEFAULT_AXES_LABEL_MARGIN = 12;
     private static final int DEFAULT_Y_AXES_COUNT = 6;
     private static final DecimalFormat DEFAULT_Y_AXIS_FORMAT = new DecimalFormat("0.00");
     private static final int DEFAULT_AXIS_LINE_WIDTH = 1;

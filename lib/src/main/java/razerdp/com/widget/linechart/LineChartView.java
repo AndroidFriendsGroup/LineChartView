@@ -67,6 +67,7 @@ public class LineChartView extends View implements IChart {
     }
 
     private void init() {
+        setLayerType(LAYER_TYPE_SOFTWARE,null);
         mChartManager = new ChartManager(this);
         mRenderManager = new RenderManager(this);
         maxFlingVertical = ViewConfiguration.get(getContext()).getScaledTouchSlop();
