@@ -48,7 +48,7 @@ class AxesRender extends BaseRender {
         linePaint.setStyle(Paint.Style.STROKE);
         linePaint.setStrokeWidth(config.getAxisLineWidth());
         linePaint.setColor(config.getAxisLineColor());
-        linePaint.setPathEffect(new DashPathEffect(new float[]{5, 5}, 0));
+        linePaint.setPathEffect(new DashPathEffect(new float[]{10, 5}, 0));
 
         labelPaint.setStyle(Paint.Style.FILL);
         labelPaint.setTextSize(ToolUtil.sp2px(chart.getViewContext(), config.getAxisTextSize()));
@@ -105,11 +105,15 @@ class AxesRender extends BaseRender {
         int axisLabelMargin = chart.getConfig().getAxesLabelMargin();
         //y轴label左右都有labelMargin
 
+
         float left = mChartManager.getDrawBounds().left + maxYAxesLabelWidth + (axisLabelMargin << 1);
         float bottom = mChartManager.getDrawHeight() - maxXAxesLabelHeight - (axisLabelMargin << 1);
         float yAxesMargin = (bottom - mChartManager.getDrawBounds().top - maxYAxesLabelHeight - axisLabelMargin) / (mYAxes.size() - 1);
-        float top = bottom - yAxesMargin * mYAxes.size();
-        float right = mChartManager.getDrawBounds().right;
+        float top = bottom - yAxesMargin * (mYAxes.size() - 1);
+        float right = mChartManager.getDrawBounds().right - maxXAxesLabelWidth / 2;
+
+        mChartManager.getxMaxLabelRect().set(0, 0, maxXAxesLabelWidth, maxXAxesLabelHeight);
+        mChartManager.getyMaxLabelRect().set(0, 0, maxYAxesLabelWidth, maxYAxesLabelHeight);
 
         mChartManager.setChartLineDrawBounds(left, top, right, bottom);
 

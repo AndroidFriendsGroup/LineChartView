@@ -10,26 +10,26 @@ import java.util.List;
 
 import razerdp.com.widget.linechart.callback.OnChartTouchListener;
 import razerdp.com.widget.linechart.line.Line;
-import razerdp.com.widget.linechart.model.ILineChatrInfo;
+import razerdp.com.widget.linechart.model.ILineChartInfo;
 
 
 /**
  * Created by 大灯泡 on 2018/1/30.
  */
 public class LineChartConfig {
-    private static final int DEFAULT_AXES_LABEL_MARGIN = 12;
+    private static final int DEFAULT_AXES_LABEL_MARGIN = 8;
     private static final int DEFAULT_Y_AXES_COUNT = 6;
     private static final DecimalFormat DEFAULT_Y_AXIS_FORMAT = new DecimalFormat("0.00");
     private static final int DEFAULT_AXIS_LINE_WIDTH = 1;
     private static final int DEFAULT_AXIS_LINE_COLOR = Color.argb(150, 207, 207, 207);
-    private static final int DEFAULT_AXIS_TEXT_SIZE = 12;
+    private static final int DEFAULT_AXIS_TEXT_SIZE = 10;
     private static final int DEFAULT_AXIS_TEXT_COLOR = Color.rgb(207, 207, 207);
 
 
     private static final int DEFAULT_TOUCH_LINE_WIDTH = 2;
     private static final int DEFAULT_TOUCH_LINE_COLOR = Color.parseColor("#959DA5");
     private static final int DEFAULT_TOUCH_POINT_RADIUS = 8;
-    private static final int DEFAULT_TOUCH_POINT_COLOR = Color.BLACK;
+    private static final int DEFAULT_TOUCH_POINT_COLOR = Color.parseColor("#999999");
 
     private static final boolean DEFAULT_LINE_ANIM = true;
     private static final long DEFAULT_LINE_ANIM_DURATION = 2500;
@@ -55,6 +55,7 @@ public class LineChartConfig {
 
     //-----------------------------------------数据-----------------------------------------
     private List<String> xAxesLabels = new ArrayList<>();
+    private List<Double> yAxesLabels = new ArrayList<>();
     private HashMap<String, Line> linesMap = new HashMap<>();
     private List<String> touchLineTag = new ArrayList<>();
     private HashMap<String, OnChartTouchListener> mOnChartTouchListenerHashMap = new HashMap<>();
@@ -92,19 +93,19 @@ public class LineChartConfig {
         return this;
     }
 
-    public LineChartConfig addDatas(String lineTag, List<? extends ILineChatrInfo> infos) {
+    public LineChartConfig addDatas(String lineTag, List<? extends ILineChartInfo> infos) {
         if (infos == null) return this;
         if (infos.size() <= 0) {
             linesMap.clear();
         } else {
-            for (ILineChatrInfo info : infos) {
+            for (ILineChartInfo info : infos) {
                 addData(lineTag, info);
             }
         }
         return this;
     }
 
-    public LineChartConfig addData(String lineTag, ILineChatrInfo info) {
+    public LineChartConfig addData(String lineTag, ILineChartInfo info) {
         if (info == null) return this;
         double value = info.getValue();
         maxYAxisValue = Double.isNaN(maxYAxisValue) ? value : Math.max(maxYAxisValue, value);
@@ -206,10 +207,31 @@ public class LineChartConfig {
         return this;
     }
 
+
+    public LineChartConfig addYAxisLabel(double label) {
+        yAxesLabels.add(label);
+        return this;
+    }
+
+    public LineChartConfig yAxisLabels(List<Double> labels) {
+        if (labels == null) return this;
+        if (labels.size() == 0) {
+            yAxesLabels.clear();
+        } else {
+            yAxesLabels.addAll(labels);
+        }
+        return this;
+    }
+
     //-----------------------------------------getter-----------------------------------------
     public List<String> getxAxesLabels() {
         return xAxesLabels;
     }
+
+    public List<Double> getyAxesLabels() {
+        return yAxesLabels;
+    }
+
 
     public HashMap<String, Line> getLinesMap() {
         return linesMap;

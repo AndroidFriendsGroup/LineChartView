@@ -14,6 +14,7 @@ import razerdp.com.widget.linechart.render.BaseRender;
 import razerdp.com.widget.linechart.utils.CLog;
 import razerdp.com.widget.linechart.utils.ToolUtil;
 
+
 /**
  * Created by 大灯泡 on 2018/1/30.
  */
@@ -24,6 +25,9 @@ public class ChartManager {
     Paint textMeasurePaint;
     IChart mIChart;
     List<BaseRender> mBaseRenders;
+    Rect xMaxLabelRect;
+    Rect yMaxLabelRect;
+
 
     double[] yRangeValue = new double[2];
 
@@ -35,6 +39,8 @@ public class ChartManager {
         textBounds = new Rect();
         textMeasurePaint = new TextPaint();
         textMeasurePaint.setStyle(Paint.Style.FILL);
+        xMaxLabelRect = new Rect();
+        yMaxLabelRect = new Rect();
     }
 
     public void setChartContentRect(int width, int height, int paddingLeft, int paddingTop, int paddingRight, int paddingBottom) {
@@ -98,6 +104,14 @@ public class ChartManager {
 
     public double getYAxisMaxValue() {
         return yRangeValue[1];
+    }
+
+    public Rect getxMaxLabelRect() {
+        return xMaxLabelRect;
+    }
+
+    public Rect getyMaxLabelRect() {
+        return yMaxLabelRect;
     }
 
     //-----------------------------------------render option-----------------------------------------

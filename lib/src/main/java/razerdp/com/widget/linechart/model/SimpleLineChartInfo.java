@@ -7,7 +7,7 @@ import java.io.Serializable;
 /**
  * Created by 大灯泡 on 2018/1/11.
  */
-public class SimpleLineChatrInfo implements ILineChatrInfo, Serializable {
+public class SimpleLineChartInfo implements ILineChartInfo, Serializable {
     private int chatLineWidth = 6;
     private int chatLineColor = Color.parseColor("#ff7113");
     private String desc;
@@ -17,40 +17,40 @@ public class SimpleLineChatrInfo implements ILineChatrInfo, Serializable {
     private int highLightColor = Color.parseColor("#49d1fe");
     private boolean withShadow = true;
 
-    public SimpleLineChatrInfo() {
+    public SimpleLineChartInfo() {
     }
 
-    public SimpleLineChatrInfo setChatLineWidth(int chatLineWidth) {
+    public SimpleLineChartInfo setChatLineWidth(int chatLineWidth) {
         this.chatLineWidth = chatLineWidth;
         return this;
     }
 
-    public SimpleLineChatrInfo setChatLineColor(int chatLineColor) {
+    public SimpleLineChartInfo setChatLineColor(int chatLineColor) {
         this.chatLineColor = chatLineColor;
         return this;
     }
 
-    public SimpleLineChatrInfo setDesc(String desc) {
+    public SimpleLineChartInfo setDesc(String desc) {
         this.desc = desc;
         return this;
     }
 
-    public SimpleLineChatrInfo setValue(double value) {
+    public SimpleLineChartInfo setValue(double value) {
         this.value = value;
         return this;
     }
 
-    public SimpleLineChatrInfo setHightLight(boolean hightLight) {
+    public SimpleLineChartInfo setHightLight(boolean hightLight) {
         isHightLight = hightLight;
         return this;
     }
 
-    public SimpleLineChatrInfo setHightLightRadius(int hightLightRadius) {
+    public SimpleLineChartInfo setHightLightRadius(int hightLightRadius) {
         this.hightLightRadius = hightLightRadius;
         return this;
     }
 
-    public SimpleLineChatrInfo setHighLightColor(int highLightColor) {
+    public SimpleLineChartInfo setHighLightColor(int highLightColor) {
         this.highLightColor = highLightColor;
         return this;
     }
@@ -90,7 +90,7 @@ public class SimpleLineChatrInfo implements ILineChatrInfo, Serializable {
         return highLightColor;
     }
 
-    public SimpleLineChatrInfo withShadow(boolean withShadow) {
+    public SimpleLineChartInfo withShadow(boolean withShadow) {
         this.withShadow = withShadow;
         return this;
     }

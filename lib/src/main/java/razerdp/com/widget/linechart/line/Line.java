@@ -9,7 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import razerdp.com.widget.linechart.callback.OnChartTouchListener;
-import razerdp.com.widget.linechart.model.ILineChatrInfo;
+import razerdp.com.widget.linechart.model.ILineChartInfo;
 
 /**
  * Created by 大灯泡 on 2018/1/30.
@@ -83,7 +83,7 @@ public class Line {
         this.pointRadius = pointRadius;
     }
 
-    public void addInfo(ILineChatrInfo info) {
+    public void addInfo(ILineChartInfo info) {
         mPoints.add(new PointInfo(info));
         if (info != null) {
             setLineWidth(info.getChartLineWidth());

@@ -40,7 +40,7 @@ publish {
     userOrg = 'razerdp'
     groupId = 'com.github.AndroidFriendsGroup'
     artifactId = 'LineChartView'
-    publishVersion = '1.0.4-alpha'
+    publishVersion = '1.0.5'
     desc = 'a simple and useful linechat view'
     website = 'https://github.com/AndroidFriendsGroup/LineChartView'
 }

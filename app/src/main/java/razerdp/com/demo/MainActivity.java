@@ -14,8 +14,8 @@ import java.util.Random;
 import razerdp.com.linechatview.R;
 import razerdp.com.widget.linechart.LineChartView;
 import razerdp.com.widget.linechart.callback.OnChartTouchListener;
-import razerdp.com.widget.linechart.model.ILineChatrInfo;
-import razerdp.com.widget.linechart.model.SimpleLineChatrInfo;
+import razerdp.com.widget.linechart.model.ILineChartInfo;
+import razerdp.com.widget.linechart.model.SimpleLineChartInfo;
 import razerdp.com.widget.linechart.config.LineChartConfig;
 
 public class MainActivity extends AppCompatActivity {
@@ -67,14 +67,14 @@ public class MainActivity extends AppCompatActivity {
                 .axisValueFormat(new DecimalFormat("0.00"))
                 .chartTouchListener("line1", new OnChartTouchListener() {
                     @Override
-                    public void onChartSelected(String lineTag, int touchAction, ILineChatrInfo data) {
+                    public void onChartSelected(String lineTag, int touchAction, ILineChartInfo data) {
                         desc.setText(String.format("%s  %s  value  >>  %s", lineTag, touchActionToString(touchAction), data == null ? "null" : data.getValue()));
 
                     }
                 })
                 .chartTouchListener("line2", new OnChartTouchListener() {
                     @Override
-                    public void onChartSelected(String lineTag, int touchAction, ILineChatrInfo data) {
+                    public void onChartSelected(String lineTag, int touchAction, ILineChartInfo data) {
                         desc2.setText(String.format("%s  %s  value  >>  %s", lineTag, touchActionToString(touchAction), data == null ? "null" : data.getValue()));
                     }
                 });
@@ -82,10 +82,10 @@ public class MainActivity extends AppCompatActivity {
         testView.start(config);
     }
 
-    private List<SimpleLineChatrInfo> createData(double start, Random random, int count, int color) {
-        List<SimpleLineChatrInfo> result = new ArrayList<>();
+    private List<SimpleLineChartInfo> createData(double start, Random random, int count, int color) {
+        List<SimpleLineChartInfo> result = new ArrayList<>();
         for (int i = 0; i < count; i++) {
-            SimpleLineChatrInfo info = new SimpleLineChatrInfo();
+            SimpleLineChartInfo info = new SimpleLineChartInfo();
             info.setChatLineColor(color);
             float r = random.nextFloat();
             info.setValue(start + r / 10).setDesc(Double.toString(info.getValue()));
@@ -111,8 +111,8 @@ public class MainActivity extends AppCompatActivity {
         return result;
     }
 
-    private SimpleLineChatrInfo createInfo(double value, int color) {
-        SimpleLineChatrInfo info = new SimpleLineChatrInfo();
+    private SimpleLineChartInfo createInfo(double value, int color) {
+        SimpleLineChartInfo info = new SimpleLineChartInfo();
         info.setChatLineColor(color);
         info.setValue(value).setDesc(Double.toString(info.getValue()));
         return info;

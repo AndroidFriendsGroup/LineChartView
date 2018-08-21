@@ -22,13 +22,15 @@ import razerdp.com.widget.linechart.callback.OnChartTouchListener;
 import razerdp.com.widget.linechart.config.LineChartConfig;
 import razerdp.com.widget.linechart.line.Line;
 import razerdp.com.widget.linechart.line.PointInfo;
-import razerdp.com.widget.linechart.model.ILineChatrInfo;
+import razerdp.com.widget.linechart.model.ILineChartInfo;
 import razerdp.com.widget.linechart.utils.ToolUtil;
 
 /**
  * Created by 大灯泡 on 2018/1/30.
  */
 public class LineChartRender extends BaseRender implements ITouchRender {
+
+    private static final boolean DEBUG = false;
 
     private List<Line> mLines = new ArrayList<>();
     private Bitmap cachedBitmap;
@@ -50,8 +52,16 @@ public class LineChartRender extends BaseRender implements ITouchRender {
     private PathMeasure mPathMeasure = new PathMeasure();
     private Path measurePath = new Path();
 
+    private Paint debugPaint;
+
     public LineChartRender(IChart chart) {
         super(chart);
+        if (DEBUG) {
+            debugPaint = new Paint();
+            debugPaint.setStyle(Paint.Style.FILL);
+            debugPaint.setColor(Color.parseColor("#884693e4"));
+            debugPaint.setAlpha(30);
+        }
     }
 
     @Override
@@ -122,6 +132,9 @@ public class LineChartRender extends BaseRender implements ITouchRender {
     }
 
     private void drawLineNormal(Canvas canvas, Line line) {
+        if (DEBUG) {
+            canvas.drawRect(getChartManager().getChartLineDrawBounds(), debugPaint);
+        }
         int pointIndex = 0;
         float prePointY = 0;
         Path path = line.getLinePath();
@@ -134,7 +147,7 @@ public class LineChartRender extends BaseRender implements ITouchRender {
             } else {
                 path.lineTo(x, y);
             }
-            drawHighLightPoint(canvas, pointInfo);
+//            drawHighLightPoint(canvas, pointInfo);
             prePointY = y;
             pointIndex++;
         }
@@ -147,14 +160,16 @@ public class LineChartRender extends BaseRender implements ITouchRender {
         } else {
             canvas.drawPath(path, paint);
         }
+
         for (PointInfo pointInfo : line.getPoints()) {
             drawHighLightPoint(canvas, pointInfo);
         }
+
         path.rewind();
     }
 
     private void drawHighLightPoint(Canvas canvas, PointInfo pointInfo) {
-        ILineChatrInfo info = pointInfo.getInfo();
+        ILineChartInfo info = pointInfo.getInfo();
         if (info == null || !info.isHightLight()) return;
         prepareHighLightPaint(info);
         int radius = info.getHightLightRadius();
@@ -163,7 +178,7 @@ public class LineChartRender extends BaseRender implements ITouchRender {
         canvas.drawCircle(pointInfo.getX(), pointInfo.getY(), radius / 2, highLightPaint);
     }
 
-    private void prepareHighLightPaint(ILineChatrInfo info) {
+    private void prepareHighLightPaint(ILineChartInfo info) {
         if (highLightPaint == null) {
             highLightPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
             highLightPaint.setStyle(Paint.Style.FILL);
@@ -173,12 +188,13 @@ public class LineChartRender extends BaseRender implements ITouchRender {
 
     private void onDrawOnTouch(Canvas canvas) {
         List<String> lineTags = chart.getConfig().getTouchLineTag();
+        float yMaxLabelHeight = mChartManager.getyMaxLabelRect().height() / 2;
         if (ToolUtil.isListEmpty(lineTags)) {
-            canvas.drawLine(lastTouchX, mChartManager.getChartLineDrawBounds().top, lastTouchX, mChartManager.getChartLineDrawBounds().bottom, touchLinePaint);
+//            canvas.drawLine(lastTouchX, mChartManager.getChartLineDrawBounds().top - yMaxLabelHeight, lastTouchX, mChartManager.getChartLineDrawBounds().bottom - yMaxLabelHeight, touchLinePaint);
         } else {
             for (Line line : mLines) {
                 String tag = line.getLineTag();
-                canvas.drawLine(lastTouchX, mChartManager.getChartLineDrawBounds().top, lastTouchX, mChartManager.getChartLineDrawBounds().bottom, touchLinePaint);
+                canvas.drawLine(lastTouchX, mChartManager.getChartLineDrawBounds().top - yMaxLabelHeight, lastTouchX, mChartManager.getChartLineDrawBounds().bottom - yMaxLabelHeight, touchLinePaint);
                 if (lineTags.contains(tag)) {
                     for (PointInfo pointInfo : line.getPoints()) {
                         if (pointInfo.inTouch(lastTouchX, chart.getConfig().getTouchPointRadius() / 2)) {
@@ -304,21 +320,32 @@ public class LineChartRender extends BaseRender implements ITouchRender {
         double maxValue = mChartManager.getYAxisMaxValue();
         double minValue = mChartManager.getYAxisMinValue();
 
-        float startX = mChartManager.getChartLineDrawBounds().left;
-        float startY = mChartManager.getChartLineDrawBounds().bottom;
-        float xMargin = mChartManager.getChartLineDrawBounds().width() / (maxXAxesLength - 1);
-        float lineBoundsHeight = mChartManager.getChartLineDrawBounds().height();
+        //有1/5保留空间
+        /**@see RenderManager#prepareAxesRender(LineChartConfig) */
+
+
+        float startX;
+        float startY;
+        float lineBoundsHeight;
+
+        float saveSpace = mChartManager.getChartLineDrawBounds().height() / 5;
+        startX = mChartManager.getChartLineDrawBounds().left + mChartManager.getxMaxLabelRect().width() / 2;
+        startY = mChartManager.getChartLineDrawBounds().bottom - mChartManager.getyMaxLabelRect().height() / 2 - saveSpace;
+        lineBoundsHeight = mChartManager.getChartLineDrawBounds().height() * 3 / 5;
 
         for (Line line : mLines) {
             line.preparePaint();
             int index = 0;
+            final int pointSize = line.getPoints().size();
+            float pointMargin = (mChartManager.getChartLineDrawBounds().width() - mChartManager.getxMaxLabelRect().width()) / (pointSize - 1);
             for (PointInfo pointInfo : line.getPoints()) {
-                ILineChatrInfo info = pointInfo.getInfo();
+                ILineChartInfo info = pointInfo.getInfo();
                 if (info == null) continue;
                 double value = info.getValue();
 
-                float x = startX + xMargin * index;
-                float y = (float) (startY - (value - minValue) / (maxValue - minValue) * lineBoundsHeight);
+                float x = startX + pointMargin * index;
+                float offset = (float) ((value - minValue) / (maxValue - minValue)) * lineBoundsHeight;
+                float y = startY - offset;
                 pointInfo.set(x, y);
                 index++;
             }

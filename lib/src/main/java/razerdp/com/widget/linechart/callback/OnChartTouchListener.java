@@ -6,12 +6,12 @@ import android.support.annotation.Nullable;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
-import razerdp.com.widget.linechart.model.ILineChatrInfo;
+import razerdp.com.widget.linechart.model.ILineChartInfo;
 
 /**
  * Created by 大灯泡 on 2018/1/31.
  */
-public interface OnChartTouchListener<T extends ILineChatrInfo> {
+public interface OnChartTouchListener<T extends ILineChartInfo> {
 
     @Retention(RetentionPolicy.SOURCE)
     @IntDef({INVALIDED, ACTION_DOWN, ACTION_MOVE, ACTION_UP})

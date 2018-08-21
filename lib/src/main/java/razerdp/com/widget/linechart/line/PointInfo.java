@@ -2,16 +2,16 @@ package razerdp.com.widget.linechart.line;
 
 import android.graphics.PointF;
 
-import razerdp.com.widget.linechart.model.ILineChatrInfo;
+import razerdp.com.widget.linechart.model.ILineChartInfo;
 
 /**
  * Created by 大灯泡 on 2018/1/30.
  */
 public final class PointInfo {
-    private ILineChatrInfo mInfo;
+    private ILineChartInfo mInfo;
     private PointF point;
 
-    public PointInfo(ILineChatrInfo info) {
+    public PointInfo(ILineChartInfo info) {
         mInfo = info;
         point = new PointF();
     }
@@ -32,7 +32,7 @@ public final class PointInfo {
         return x >= point.x - touchToTouchRange && x <= point.x + touchToTouchRange;
     }
 
-    public ILineChatrInfo getInfo() {
+    public ILineChartInfo getInfo() {
         return mInfo;
     }
 }

@@ -20,6 +20,7 @@ import razerdp.com.widget.linechart.line.Line;
 import razerdp.com.widget.linechart.utils.ThreadPoolUtils;
 import razerdp.com.widget.linechart.utils.ToolUtil;
 
+
 /**
  * Created by 大灯泡 on 2018/1/30.
  */
@@ -81,24 +82,29 @@ public class RenderManager implements ITouchRender {
         double maxValue = config.getMaxYAxisValue();
         double minValue = config.getMinYAxisValue();
 
+        List<Double> mYaxesLabels = config.getyAxesLabels();
+
+        boolean isAuto = ToolUtil.isListEmpty(mYaxesLabels);
+
         double exRange = (maxValue - minValue) / 5;
         if (exRange == 0) {
             exRange = maxValue / 5;
         }
 
-        maxValue += exRange;
-        minValue -= exRange;
-
         chart.getChartManager().setYAxisMinValue(minValue);
         chart.getChartManager().setYAxisMaxValue(maxValue);
 
-        final int yAxesCount = config.getYAxesCount();
-        double yPercent = (maxValue - minValue) / yAxesCount;
+        maxValue += exRange;
+        minValue -= exRange;
+
+
+        final int yAxesCount = isAuto ? config.getYAxesCount() : mYaxesLabels.size();
+        double yPercent = (maxValue - minValue) / (yAxesCount - 1);
         String format = config.getyAxisStringFormat();
         DecimalFormat valueFormat = config.getyAxisValueFormat();
         for (int i = 0; i < yAxesCount; i++) {
             Axis axis = new Axis();
-            double value = minValue + yPercent * i;
+            double value = isAuto ? (minValue + yPercent * i) : mYaxesLabels.get(i);
             if (!TextUtils.isEmpty(format)) {
                 axis.setLabel(String.format(Locale.getDefault(), format, valueFormat == null ? Double.toString(value) : valueFormat.format(value)));
             } else {
@@ -106,9 +112,7 @@ public class RenderManager implements ITouchRender {
             }
             render.addYAxesData(axis);
         }
-
         render.prepare();
-
     }
 
     private void prepareLineChartRender(LineChartConfig config) {
